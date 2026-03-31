@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ملفي الشخصي - لعبة الجوكر</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>👤 ملفي الشخصي</h1>
+        </div>
+        
+        <div id="profileContent" class="profile-card">
+            <div class="profile-header">
+                <img id="profilePhoto" class="profile-photo" src="" alt="صورة">
+                <div class="profile-info">
+                    <h2 id="profileName">---</h2>
+                    <p id="profileEmail">---</p>
+                </div>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="statGames">0</div>
+                    <div class="stat-label">🎮 مباريات</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statWins">0</div>
+                    <div class="stat-label">🏆 فوز</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statLosses">0</div>
+                    <div class="stat-label">💔 خسارة</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statWinRate">0%</div>
+                    <div class="stat-label">📈 نسبة فوز</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statLevel">1</div>
+                    <div class="stat-label">⭐ المستوى</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statCoins">0</div>
+                    <div class="stat-label">💰 العملات</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statXP">0</div>
+                    <div class="stat-label">📈 XP</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statNextLevel">0</div>
+                    <div class="stat-label">⭐ للمستوى التالي</div>
+                </div>
+            </div>
+            
+            <div class="xp-bar">
+                <div class="xp-bar-fill" id="xpBarFill" style="width: 0%"></div>
+            </div>
+            
+            <div class="achievements-section">
+                <h3>🏅 الإنجازات</h3>
+                <div id="achievementsList" class="achievements-grid"></div>
+            </div>
+            
+            <button onclick="window.location.href='index.html'" class="btn-primary">🏠 العودة للرئيسية</button>
+        </div>
+    </div>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    
+    <script>
+        const achievements = [
+            { id: 'first_win', name: 'أول فوز', desc: 'احقق أول فوز لك', icon: '🏆', required: 1, type: 'wins' },
+            { id: '10_wins', name: 'البطل', desc: 'احقق 10 انتصارات', icon: '🏅', required: 10, type: 'wins' },
+            { id: '50_wins', name: 'أسطورة', desc: 'احقق 50 انتصار', icon: '👑', required: 50, type: 'wins' },
+            { id: 'level_5', name: 'متصاعد', desc: 'وصل للمستوى 5', icon: '⭐', required: 5, type: 'level' },
+            { id: 'level_10', name: 'خبير', desc: 'وصل للمستوى 10', icon: '🌟🌟', required: 10, type: 'level' },
+            { id: '1000_coins', name: 'غني', desc: 'اجمع 1000 عملة', icon: '💰', required: 1000, type: 'coins' }
+        ];
+        
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            const snapshot = await database.ref(`users/${user.uid}`).once('value');
+            const data = snapshot.val() || {};
+            
+            document.getElementById('profilePhoto').src = user.photoURL || 'https://via.placeholder.com/100';
+            document.getElementById('profileName').innerText = user.displayName || 'لاعب';
+            document.getElementById('profileEmail').innerText = user.email || 'ضيف';
+            
+            const gamesPlayed = data.gamesPlayed || 0;
+            const wins = data.wins || 0;
+            const losses = data.losses || 0;
+            const level = data.level || 1;
+            const xp = data.xp || 0;
+            const coins = data.coins || 100;
+            const winRate = gamesPlayed > 0 ? Math.round((wins / gamesPlayed) * 100) : 0;
+            const xpForNextLevel = (level * 100) - xp;
+            
+            document.getElementById('statGames').innerText = gamesPlayed;
+            document.getElementById('statWins').innerText = wins;
+            document.getElementById('statLosses').innerText = losses;
+            document.getElementById('statWinRate').innerText = winRate + '%';
+            document.getElementById('statLevel').innerText = level;
+            document.getElementById('statCoins').innerText = coins;
+            document.getElementById('statXP').innerText = xp;
+            document.getElementById('statNextLevel').innerText = Math.max(0, xpForNextLevel);
+            
+            const xpPercent = (xp % 100) / 100 * 100;
+            document.getElementById('xpBarFill').style.width = xpPercent + '%';
+            
+            // التحقق من الإنجازات
+            const unlockedAchievements = data.achievements || [];
+            const achievementsList = document.getElementById('achievementsList');
+            
+            achievementsList.innerHTML = achievements.map(ach => {
+                let isUnlocked = false;
+                if (ach.type === 'wins') isUnlocked = wins >= ach.required;
+                if (ach.type === 'level') isUnlocked = level >= ach.required;
+                if (ach.type === 'coins') isUnlocked = coins >= ach.required;
+                
+                return `
+                    <div class="achievement ${isUnlocked ? 'unlocked' : 'locked'}">
+                        <div class="achievement-icon">${ach.icon}</div>
+                        <div class="achievement-info">
+                            <div class="achievement-name">${ach.name}</div>
+                            <div class="achievement-desc">${ach.desc}</div>
+                        </div>
+                        ${isUnlocked ? '<div class="achievement-check">✓</div>' : ''}
+                    </div>
+                `;
+            }).join('');
+        });
+    </script>
+</body>
+</html>
