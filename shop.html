@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المتجر - لعبة الجوكر</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>🛒 المتجر 🛒</h1>
+            <p>اشتري سكنات جديدة لبطاقاتك</p>
+        </div>
+        
+        <div class="user-balance" id="userBalance">
+            💰 جاري التحميل...
+        </div>
+        
+        <div class="shop-grid" id="shopGrid">
+            <!-- سكنات البطاقات -->
+        </div>
+        
+        <button onclick="window.location.href='index.html'" class="btn-primary" style="margin-top: 20px;">🏠 العودة للرئيسية</button>
+    </div>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script>
+        const SKINS = [
+            { id: 'classic', name: 'كلاسيكي', price: 0, emoji: '🃏', color: '#fff' },
+            { id: 'golden', name: 'ذهبي', price: 100, emoji: '✨', color: '#d4af37' },
+            { id: 'neon', name: 'نيون', price: 150, emoji: '💚', color: '#00ff87' },
+            { id: 'wood', name: 'خشبي', price: 80, emoji: '🪵', color: '#8b5a2b' },
+            { id: 'crystal', name: 'كريستال', price: 200, emoji: '💎', color: '#88e0ff' }
+        ];
+        
+        let userCoins = 0;
+        let ownedSkins = ['classic'];
+        let currentSkin = 'classic';
+        
+        async function loadUserData() {
+            const user = auth.currentUser;
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            const snapshot = await database.ref(`users/${user.uid}`).once('value');
+            const data = snapshot.val();
+            userCoins = data?.coins || 0;
+            ownedSkins = data?.ownedSkins || ['classic'];
+            currentSkin = data?.currentSkin || 'classic';
+            
+            document.getElementById('userBalance').innerHTML = `💰 رصيدك: ${userCoins} عملة`;
+            renderShop();
+        }
+        
+        function renderShop() {
+            const grid = document.getElementById('shopGrid');
+            grid.innerHTML = SKINS.map(skin => `
+                <div class="shop-item ${ownedSkins.includes(skin.id) ? 'owned' : ''} ${currentSkin === skin.id ? 'selected' : ''}" onclick="buySkin('${skin.id}')">
+                    <div class="shop-item-preview" style="background: ${skin.color}; border-radius: 8px;">
+                        <div style="font-size: 3em; text-align: center; line-height: 110px;">${skin.emoji}</div>
+                    </div>
+                    <div class="shop-item-name">${skin.name}</div>
+                    ${!ownedSkins.includes(skin.id) ? 
+                        `<div class="shop-item-price">💰 ${skin.price}</div>` : 
+                        currentSkin === skin.id ? 
+                        '<div class="shop-item-owned">✓ مستخدم حالياً</div>' :
+                        '<div class="shop-item-owned">✓ مملوك</div>'}
+                </div>
+            `).join('');
+        }
+        
+        async function buySkin(skinId) {
+            const skin = SKINS.find(s => s.id === skinId);
+            if (ownedSkins.includes(skinId)) {
+                if (currentSkin !== skinId) {
+                    await database.ref(`users/${auth.currentUser.uid}`).update({ currentSkin: skinId });
+                    currentSkin = skinId;
+                    showToast(`✅ تم تغيير السكن إلى ${skin.name}`);
+                    renderShop();
+                }
+                return;
+            }
+            
+            if (userCoins >= skin.price) {
+                const newCoins = userCoins - skin.price;
+                const newOwned = [...ownedSkins, skinId];
+                
+                await database.ref(`users/${auth.currentUser.uid}`).update({
+                    coins: newCoins,
+                    ownedSkins: newOwned,
+                    currentSkin: skinId
+                });
+                
+                userCoins = newCoins;
+                ownedSkins = newOwned;
+                currentSkin = skinId;
+                
+                document.getElementById('userBalance').innerHTML = `💰 رصيدك: ${userCoins} عملة`;
+                renderShop();
+                playSound('buy');
+                showToast(`🎉 اشتريت ${skin.name} بنجاح!`);
+            } else {
+                showToast(`❌ رصيدك لا يكفي! تحتاج ${skin.price - userCoins} عملة إضافية`);
+            }
+        }
+        
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        auth.onAuthStateChanged(user => {
+            if (user) loadUserData();
+            else window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>
