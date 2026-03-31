@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المتصدرين - لعبة الجوكر</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>🏆 لوحة المتصدرين 🏆</h1>
+            <p>أفضل اللاعبين حول العالم</p>
+        </div>
+        
+        <div class="leaderboard-filters">
+            <button onclick="loadLeaderboard('wins')" class="filter-btn active">🏅 الأكثر فوزاً</button>
+            <button onclick="loadLeaderboard('level')" class="filter-btn">⭐ أعلى مستوى</button>
+            <button onclick="loadLeaderboard('coins')" class="filter-btn">💰 أغنى لاعبين</button>
+            <button onclick="loadLeaderboard('xp')" class="filter-btn">📈 أكثر XP</button>
+        </div>
+        
+        <div id="leaderboardList" class="leaderboard">
+            <div class="loading">⏳ جاري التحميل...</div>
+        </div>
+        
+        <button onclick="window.location.href='index.html'" class="btn-primary" style="margin-top: 20px;">🏠 العودة للرئيسية</button>
+    </div>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script>
+        let currentSort = 'wins';
+        
+        async function loadLeaderboard(sortBy) {
+            currentSort = sortBy;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const snapshot = await database.ref('users').once('value');
+            const users = [];
+            
+            snapshot.forEach(child => {
+                const user = child.val();
+                if (!user.isGuest) {
+                    users.push(user);
+                }
+            });
+            
+            users.sort((a, b) => (b[sortBy] || 0) - (a[sortBy] || 0));
+            const topUsers = users.slice(0, 10);
+            
+            const container = document.getElementById('leaderboardList');
+            container.innerHTML = topUsers.map((user, index) => `
+                <div class="leaderboard-item">
+                    <div class="leaderboard-rank ${index === 0 ? 'top-1' : index === 1 ? 'top-2' : index === 2 ? 'top-3' : ''}">
+                        ${index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`}
+                    </div>
+                    <div class="leaderboard-info">
+                        <div class="leaderboard-name">${user.name || 'لاعب'}</div>
+                        <div class="leaderboard-stats">
+                            🏆 ${user.wins || 0} فوز | ⭐ المستوى ${user.level || 1} | 💰 ${user.coins || 0} عملة
+                        </div>
+                    </div>
+                    <div class="leaderboard-score">
+                        ${sortBy === 'wins' ? `${user.wins || 0} فوز` : 
+                          sortBy === 'level' ? `المستوى ${user.level || 1}` :
+                          sortBy === 'coins' ? `${user.coins || 0} عملة` :
+                          `${user.xp || 0} XP`}
+                    </div>
+                </div>
+            `).join('');
+            
+            if (topUsers.length === 0) {
+                container.innerHTML = '<div class="empty">لا يوجد لاعبين بعد 😢<br>كن أول من يلعب!</div>';
+            }
+        }
+        
+        loadLeaderboard('wins');
+    </script>
+</body>
+  </html>
