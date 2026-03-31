@@ -3,271 +3,300 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>لعبة الجوكر - Joker Game</title>
+    <title>JOKER | لعبة الجوكر</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div class="stars"></div>
+    <div class="twinkling"></div>
+    
     <div class="container">
-        <div class="logo">
-            <h1>🎴 لعبة الجوكر 🃏</h1>
-            <p>آخر من تبقى معه أوراق يخسر!</p>
+        <div class="hero-section">
+            <div class="card-float card-1">🃏</div>
+            <div class="card-float card-2">🃟</div>
+            <div class="card-float card-3">♠️</div>
+            <div class="card-float card-4">♥️</div>
+            
+            <h1 class="game-title">
+                <span class="title-joker">JOKER</span>
+                <span class="title-ar">الجوكر</span>
+            </h1>
+            <p class="tagline">آخر من تبقى معه أوراق يخسر!</p>
         </div>
         
-        <!-- حالة تسجيل الدخول -->
-        <div id="authSection">
-            <div id="notLoggedIn" class="auth-card">
-                <h2>🔐 تسجيل الدخول</h2>
-                <button onclick="loginWithGoogle()" class="google-btn">
-                    🚀 تسجيل الدخول بحساب Google
-                </button>
-                <p class="guest-text">أو</p>
-                <button onclick="loginAsGuest()" class="guest-btn">
-                    👤 لعب كضيف
+        <div class="auth-box" id="authBox">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('login')">تسجيل الدخول</button>
+                <button class="tab" onclick="switchTab('guest')">لعب كضيف</button>
+            </div>
+            
+            <div id="loginTab" class="tab-content active">
+                <button id="googleLoginBtn" class="btn-google">
+                    <svg width="20" height="20" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    تسجيل الدخول بحساب Google
                 </button>
             </div>
             
-            <div id="loggedIn" class="auth-card" style="display: none;">
-                <div class="user-info">
-                    <img id="userPhoto" class="user-photo" src="" alt="صورة المستخدم">
-                    <div>
-                        <div id="userName" class="user-name"></div>
-                        <div id="userLevel" class="user-level">⭐ المستوى 1</div>
-                        <div id="userCoins" class="user-coins">💰 0 عملة</div>
+            <div id="guestTab" class="tab-content">
+                <div class="guest-info">
+                    <p>🎮 العب كضيف بدون حساب</p>
+                    <p class="guest-note">لن يتم حفظ تقدمك</p>
+                </div>
+                <button id="guestLoginBtn" class="btn-guest">
+                    👤 بدء اللعب كضيف
+                </button>
+            </div>
+        </div>
+        
+        <div id="gameControls" style="display: none;">
+            <div class="user-bar" id="userBar">
+                <div class="user-avatar" id="userAvatar"></div>
+                <div class="user-details">
+                    <span class="user-name" id="userNameDisplay"></span>
+                    <div class="user-stats">
+                        <span class="user-level" id="userLevelDisplay">⭐ المستوى 1</span>
+                        <span class="user-coins" id="userCoinsDisplay">💰 0</span>
                     </div>
                 </div>
-                <div class="quick-actions">
-                    <button onclick="window.location.href='profile.html'" class="action-btn">👤 ملفي</button>
-                    <button onclick="window.location.href='leaderboard.html'" class="action-btn">🏆 الترتيب</button>
-                    <button onclick="window.location.href='shop.html'" class="action-btn">🛒 المتجر</button>
-                    <button onclick="logout()" class="logout-btn-small">🚪 خروج</button>
-                </div>
+                <button id="logoutBtn" class="logout-icon">🚪</button>
             </div>
-        </div>
-        
-        <!-- أقسام اللعبة -->
-        <div id="gameSection" style="display: none;">
-            <div class="create-game">
-                <h2>🎮 إنشاء لعبة</h2>
-                <div class="game-mode-buttons">
-                    <button onclick="createGame('online')" class="btn-primary">🌐 أونلاين (2-4 لاعبين)</button>
-                    <button onclick="createGame('vsAI')" class="btn-secondary">🤖 ضد الكمبيوتر</button>
+            
+            <div class="game-actions">
+                <button id="createGameBtn" class="btn-primary">
+                    <span>🎮</span> إنشاء لعبة جديدة
+                </button>
+                <div class="join-section">
+                    <input type="text" id="gameCodeInput" placeholder="رمز اللعبة (6 أحرف)" maxlength="6">
+                    <button id="joinGameBtn" class="btn-secondary">🔍 انضم</button>
                 </div>
             </div>
             
-            <div class="join-game">
-                <h2>🚪 الانضمام إلى لعبة</h2>
-                <input type="text" id="gameCode" placeholder="رمز اللعبة (6 أحرف)">
-                <button onclick="joinGame()" class="btn-secondary">🔍 انضم للعبة</button>
-            </div>
-            
-            <div class="ai-settings" id="aiSettings" style="display: none;">
-                <h3>⚙️ إعدادات الذكاء الاصطناعي</h3>
-                <select id="aiDifficulty" onchange="setAIDifficulty(this.value)">
-                    <option value="easy">😊 سهل</option>
-                    <option value="medium" selected>😐 متوسط</option>
-                    <option value="hard">🤖 صعب</option>
-                </select>
+            <div class="nav-links">
+                <button onclick="window.location.href='profile.html'" class="nav-link">👤 ملفي</button>
+                <button onclick="window.location.href='leaderboard.html'" class="nav-link">🏆 الترتيب</button>
+                <button onclick="window.location.href='shop.html'" class="nav-link">🛒 المتجر</button>
             </div>
         </div>
         
-        <!-- إعدادات الصوت والثيم -->
-        <div class="settings-bar">
-            <button onclick="toggleSound()" id="soundBtn">🔊</button>
-            <button onclick="toggleMusic()" id="musicBtn">🎵</button>
-            <button onclick="openThemeSelector()" id="themeBtn">🎨</button>
-            <button onclick="openLanguageSelector()" id="langBtn">🌐 عربي</button>
-        </div>
-        
-        <div id="errorMessage" class="error"></div>
-    </div>
-    
-    <!-- نافذة اختيار الثيم -->
-    <div id="themeModal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <h3>اختر الثيم</h3>
-            <div class="theme-options">
-                <button onclick="changeTheme('dark')" class="theme-option dark">🌙 داكن</button>
-                <button onclick="changeTheme('light')" class="theme-option light">☀️ فاتح</button>
-                <button onclick="changeTheme('gold')" class="theme-option gold">✨ ذهبي</button>
-                <button onclick="changeTheme('blue')" class="theme-option blue">💙 أزرق</button>
-                <button onclick="changeTheme('purple')" class="theme-option purple">💜 بنفسجي</button>
-            </div>
-            <button onclick="closeModal()" class="close-btn">إغلاق</button>
+        <div class="footer">
+            <button id="themeToggle" class="theme-btn">🌙</button>
         </div>
     </div>
     
-    <!-- نافذة اختيار اللغة -->
-    <div id="langModal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <h3>اختر اللغة</h3>
-            <div class="lang-options">
-                <button onclick="changeLanguage('ar')" class="lang-option">🇸🇦 العربية</button>
-                <button onclick="changeLanguage('en')" class="lang-option">🇺🇸 English</button>
-                <button onclick="changeLanguage('tr')" class="lang-option">🇹🇷 Türkçe</button>
-            </div>
-            <button onclick="closeModal()" class="close-btn">إغلاق</button>
-        </div>
-    </div>
+    <div id="toast" class="toast"></div>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <script src="firebase-config.js"></script>
-    <script src="auth.js"></script>
-    <script src="sound.js"></script>
-    <script src="game.js"></script>
-    
     <script>
+        // ============= المتغيرات =============
         let currentUser = null;
         let isGuest = false;
         
-        // مراقبة حالة تسجيل الدخول
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                currentUser = user;
-                isGuest = false;
-                await loadUserData(user.uid);
-                showLoggedInUI(user);
-                showGameSection();
+        // ============= دوال مساعدة =============
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show ' + (isError ? 'error' : '');
+            setTimeout(() => {
+                toast.className = 'toast';
+            }, 3000);
+        }
+        
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            if (tab === 'login') {
+                document.querySelector('.tab').classList.add('active');
+                document.getElementById('loginTab').classList.add('active');
             } else {
-                // التحقق من وجود ضيف مخزن
-                const guestUser = localStorage.getItem('guestUser');
-                if (guestUser) {
-                    currentUser = JSON.parse(guestUser);
-                    isGuest = true;
-                    showLoggedInUI(currentUser);
-                    showGameSection();
-                } else {
-                    showLoggedOutUI();
-                    hideGameSection();
+                document.querySelectorAll('.tab')[1].classList.add('active');
+                document.getElementById('guestTab').classList.add('active');
+            }
+        }
+        
+        function showGameControls() {
+            document.getElementById('authBox').style.display = 'none';
+            document.getElementById('gameControls').style.display = 'block';
+        }
+        
+        function showAuthBox() {
+            document.getElementById('authBox').style.display = 'block';
+            document.getElementById('gameControls').style.display = 'none';
+        }
+        
+        function updateUserUI() {
+            if (currentUser) {
+                document.getElementById('userNameDisplay').textContent = currentUser.displayName || (isGuest ? currentUser.displayName : 'لاعب');
+                document.getElementById('userAvatar').innerHTML = currentUser.photoURL ? 
+                    `<img src="${currentUser.photoURL}" class="avatar-img">` : 
+                    `<div class="avatar-placeholder">${(currentUser.displayName || '👤').charAt(0)}</div>`;
+                
+                if (userData) {
+                    document.getElementById('userLevelDisplay').innerHTML = `⭐ المستوى ${userData.level || 1}`;
+                    document.getElementById('userCoinsDisplay').innerHTML = `💰 ${userData.coins || 0}`;
                 }
             }
-        });
-        
-        function showLoggedInUI(user) {
-            document.getElementById('notLoggedIn').style.display = 'none';
-            document.getElementById('loggedIn').style.display = 'block';
-            document.getElementById('userName').innerText = user.displayName || (user.isGuest ? user.name : 'لاعب');
-            if (user.photoURL) {
-                document.getElementById('userPhoto').src = user.photoURL;
-                document.getElementById('userPhoto').style.display = 'block';
-            }
-            if (userData) {
-                document.getElementById('userLevel').innerHTML = `⭐ المستوى ${userData.level || 1}`;
-                document.getElementById('userCoins').innerHTML = `💰 ${userData.coins || 0} عملة`;
-            }
         }
         
-        function showLoggedOutUI() {
-            document.getElementById('notLoggedIn').style.display = 'block';
-            document.getElementById('loggedIn').style.display = 'none';
+        // ============= Firebase Auth =============
+        function loginWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            provider.setCustomParameters({ prompt: 'select_account' });
+            
+            auth.signInWithPopup(provider)
+                .then((result) => {
+                    currentUser = result.user;
+                    isGuest = false;
+                    localStorage.removeItem('guestUser');
+                    saveUserToDatabase(currentUser);
+                    showGameControls();
+                    updateUserUI();
+                    showToast(`مرحباً ${currentUser.displayName}! 🎉`);
+                })
+                .catch((error) => {
+                    console.error(error);
+                    showToast(error.message, true);
+                });
         }
         
-        function showGameSection() {
-            document.getElementById('gameSection').style.display = 'block';
-        }
-        
-        function hideGameSection() {
-            document.getElementById('gameSection').style.display = 'none';
-        }
-        
-        async function loadUserData(uid) {
-            const snapshot = await database.ref(`users/${uid}`).once('value');
-            if (snapshot.exists()) {
-                userData = { ...userData, ...snapshot.val() };
-                document.getElementById('userLevel').innerHTML = `⭐ المستوى ${userData.level || 1}`;
-                document.getElementById('userCoins').innerHTML = `💰 ${userData.coins || 0} عملة`;
-            }
-        }
-        
-        function createGame(mode) {
-            if (!currentUser) {
-                showError('الرجاء تسجيل الدخول أولاً');
-                return;
-            }
-            const gameId = generateGameCode();
-            window.location.href = `game.html?mode=${mode}&gameId=${gameId}`;
-        }
-        
-        function joinGame() {
-            const gameCode = document.getElementById('gameCode').value.trim().toUpperCase();
-            if (!gameCode) {
-                showError('الرجاء إدخال رمز اللعبة');
-                return;
-            }
-            window.location.href = `game.html?mode=online&gameId=${gameCode}`;
-        }
-        
-        function generateGameCode() {
-            return Math.random().toString(36).substring(2, 8).toUpperCase();
+        function loginAsGuest() {
+            const guestId = 'guest_' + Date.now();
+            const guestName = 'ضيف_' + Math.floor(Math.random() * 1000);
+            
+            currentUser = {
+                uid: guestId,
+                displayName: guestName,
+                photoURL: null,
+                isGuest: true
+            };
+            isGuest = true;
+            
+            localStorage.setItem('guestUser', JSON.stringify(currentUser));
+            
+            // بيانات افتراضية للضيف
+            userData = {
+                level: 1,
+                coins: 0,
+                wins: 0,
+                losses: 0,
+                gamesPlayed: 0
+            };
+            
+            showGameControls();
+            updateUserUI();
+            showToast(`مرحباً ${guestName}! 🎮`);
         }
         
         function logout() {
             if (isGuest) {
                 localStorage.removeItem('guestUser');
-                currentUser = null;
-                isGuest = false;
-                showLoggedOutUI();
-                hideGameSection();
             } else {
-                auth.signOut().then(() => {
-                    showLoggedOutUI();
-                    hideGameSection();
+                auth.signOut();
+            }
+            currentUser = null;
+            isGuest = false;
+            showAuthBox();
+            showToast('تم تسجيل الخروج');
+        }
+        
+        async function saveUserToDatabase(user) {
+            if (user.isGuest) return;
+            
+            const userRef = database.ref(`users/${user.uid}`);
+            const snapshot = await userRef.once('value');
+            
+            if (!snapshot.exists()) {
+                await userRef.set({
+                    uid: user.uid,
+                    name: user.displayName,
+                    email: user.email || '',
+                    photoURL: user.photoURL || '',
+                    createdAt: Date.now(),
+                    xp: 0,
+                    level: 1,
+                    coins: 100,
+                    wins: 0,
+                    losses: 0,
+                    gamesPlayed: 0
                 });
             }
+            
+            const data = (await userRef.once('value')).val();
+            window.userData = data;
+            updateUserUI();
         }
         
-        function changeTheme(theme) {
-            document.body.className = `theme-${theme}`;
-            if (currentUser && !isGuest) {
-                database.ref(`users/${currentUser.uid}`).update({ currentTheme: theme });
+        function createGame() {
+            if (!currentUser) {
+                showToast('الرجاء تسجيل الدخول أولاً', true);
+                return;
             }
-            closeModal();
+            const gameId = Math.random().toString(36).substring(2, 8).toUpperCase();
+            window.location.href = `game.html?gameId=${gameId}`;
         }
         
-        function changeLanguage(lang) {
-            localStorage.setItem('language', lang);
-            // تحديث النصوص حسب اللغة
-            closeModal();
+        function joinGame() {
+            const gameCode = document.getElementById('gameCodeInput').value.trim().toUpperCase();
+            if (!gameCode) {
+                showToast('الرجاء إدخال رمز اللعبة', true);
+                return;
+            }
+            window.location.href = `game.html?gameId=${gameCode}`;
         }
         
-        function openThemeSelector() {
-            document.getElementById('themeModal').style.display = 'flex';
+        function toggleTheme() {
+            const isDark = document.body.classList.toggle('light-theme');
+            const btn = document.getElementById('themeToggle');
+            btn.textContent = isDark ? '🌙' : '☀️';
+            localStorage.setItem('theme', isDark ? 'light' : 'dark');
         }
         
-        function openLanguageSelector() {
-            document.getElementById('langModal').style.display = 'flex';
-        }
+        // ============= تحميل البيانات =============
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                isGuest = false;
+                saveUserToDatabase(user);
+                showGameControls();
+                updateUserUI();
+            } else {
+                const guestUser = localStorage.getItem('guestUser');
+                if (guestUser) {
+                    currentUser = JSON.parse(guestUser);
+                    isGuest = true;
+                    showGameControls();
+                    updateUserUI();
+                } else {
+                    showAuthBox();
+                }
+            }
+        });
         
-        function closeModal() {
-            document.getElementById('themeModal').style.display = 'none';
-            document.getElementById('langModal').style.display = 'none';
-        }
-        
-        function showError(message) {
-            const errorDiv = document.getElementById('errorMessage');
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-            setTimeout(() => {
-                errorDiv.style.display = 'none';
-            }, 3000);
-        }
+        // ============= ربط الأزرار =============
+        document.getElementById('googleLoginBtn').onclick = loginWithGoogle;
+        document.getElementById('guestLoginBtn').onclick = loginAsGuest;
+        document.getElementById('logoutBtn').onclick = logout;
+        document.getElementById('createGameBtn').onclick = createGame;
+        document.getElementById('joinGameBtn').onclick = joinGame;
+        document.getElementById('themeToggle').onclick = toggleTheme;
         
         // تحميل الثيم المحفوظ
         const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            document.body.className = `theme-${savedTheme}`;
+        if (savedTheme === 'light') {
+            document.body.classList.add('light-theme');
+            document.getElementById('themeToggle').textContent = '🌙';
         }
         
-        // إظهار إعدادات AI عند اختيار وضع ضد الكمبيوتر
-        document.querySelector('[onclick="createGame(\'vsAI\')"]')?.addEventListener('click', () => {
-            document.getElementById('aiSettings').style.display = 'block';
-        });
-        
-        document.querySelector('[onclick="createGame(\'online\')"]')?.addEventListener('click', () => {
-            document.getElementById('aiSettings').style.display = 'none';
-        });
+        window.userData = { level: 1, coins: 0 };
     </script>
 </body>
-                      </html>
+</html>
