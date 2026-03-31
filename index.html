@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>لعبة الجوكر - Joker Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>🎴 لعبة الجوكر 🃏</h1>
+            <p>آخر من تبقى معه أوراق يخسر!</p>
+        </div>
+        
+        <!-- حالة تسجيل الدخول -->
+        <div id="authSection">
+            <div id="notLoggedIn" class="auth-card">
+                <h2>🔐 تسجيل الدخول</h2>
+                <button onclick="loginWithGoogle()" class="google-btn">
+                    🚀 تسجيل الدخول بحساب Google
+                </button>
+                <p class="guest-text">أو</p>
+                <button onclick="loginAsGuest()" class="guest-btn">
+                    👤 لعب كضيف
+                </button>
+            </div>
+            
+            <div id="loggedIn" class="auth-card" style="display: none;">
+                <div class="user-info">
+                    <img id="userPhoto" class="user-photo" src="" alt="صورة المستخدم">
+                    <div>
+                        <div id="userName" class="user-name"></div>
+                        <div id="userLevel" class="user-level">⭐ المستوى 1</div>
+                        <div id="userCoins" class="user-coins">💰 0 عملة</div>
+                    </div>
+                </div>
+                <div class="quick-actions">
+                    <button onclick="window.location.href='profile.html'" class="action-btn">👤 ملفي</button>
+                    <button onclick="window.location.href='leaderboard.html'" class="action-btn">🏆 الترتيب</button>
+                    <button onclick="window.location.href='shop.html'" class="action-btn">🛒 المتجر</button>
+                    <button onclick="logout()" class="logout-btn-small">🚪 خروج</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- أقسام اللعبة -->
+        <div id="gameSection" style="display: none;">
+            <div class="create-game">
+                <h2>🎮 إنشاء لعبة</h2>
+                <div class="game-mode-buttons">
+                    <button onclick="createGame('online')" class="btn-primary">🌐 أونلاين (2-4 لاعبين)</button>
+                    <button onclick="createGame('vsAI')" class="btn-secondary">🤖 ضد الكمبيوتر</button>
+                </div>
+            </div>
+            
+            <div class="join-game">
+                <h2>🚪 الانضمام إلى لعبة</h2>
+                <input type="text" id="gameCode" placeholder="رمز اللعبة (6 أحرف)">
+                <button onclick="joinGame()" class="btn-secondary">🔍 انضم للعبة</button>
+            </div>
+            
+            <div class="ai-settings" id="aiSettings" style="display: none;">
+                <h3>⚙️ إعدادات الذكاء الاصطناعي</h3>
+                <select id="aiDifficulty" onchange="setAIDifficulty(this.value)">
+                    <option value="easy">😊 سهل</option>
+                    <option value="medium" selected>😐 متوسط</option>
+                    <option value="hard">🤖 صعب</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- إعدادات الصوت والثيم -->
+        <div class="settings-bar">
+            <button onclick="toggleSound()" id="soundBtn">🔊</button>
+            <button onclick="toggleMusic()" id="musicBtn">🎵</button>
+            <button onclick="openThemeSelector()" id="themeBtn">🎨</button>
+            <button onclick="openLanguageSelector()" id="langBtn">🌐 عربي</button>
+        </div>
+        
+        <div id="errorMessage" class="error"></div>
+    </div>
+    
+    <!-- نافذة اختيار الثيم -->
+    <div id="themeModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>اختر الثيم</h3>
+            <div class="theme-options">
+                <button onclick="changeTheme('dark')" class="theme-option dark">🌙 داكن</button>
+                <button onclick="changeTheme('light')" class="theme-option light">☀️ فاتح</button>
+                <button onclick="changeTheme('gold')" class="theme-option gold">✨ ذهبي</button>
+                <button onclick="changeTheme('blue')" class="theme-option blue">💙 أزرق</button>
+                <button onclick="changeTheme('purple')" class="theme-option purple">💜 بنفسجي</button>
+            </div>
+            <button onclick="closeModal()" class="close-btn">إغلاق</button>
+        </div>
+    </div>
+    
+    <!-- نافذة اختيار اللغة -->
+    <div id="langModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>اختر اللغة</h3>
+            <div class="lang-options">
+                <button onclick="changeLanguage('ar')" class="lang-option">🇸🇦 العربية</button>
+                <button onclick="changeLanguage('en')" class="lang-option">🇺🇸 English</button>
+                <button onclick="changeLanguage('tr')" class="lang-option">🇹🇷 Türkçe</button>
+            </div>
+            <button onclick="closeModal()" class="close-btn">إغلاق</button>
+        </div>
+    </div>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+    <script src="sound.js"></script>
+    <script src="game.js"></script>
+    
+    <script>
+        let currentUser = null;
+        let isGuest = false;
+        
+        // مراقبة حالة تسجيل الدخول
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                isGuest = false;
+                await loadUserData(user.uid);
+                showLoggedInUI(user);
+                showGameSection();
+            } else {
+                // التحقق من وجود ضيف مخزن
+                const guestUser = localStorage.getItem('guestUser');
+                if (guestUser) {
+                    currentUser = JSON.parse(guestUser);
+                    isGuest = true;
+                    showLoggedInUI(currentUser);
+                    showGameSection();
+                } else {
+                    showLoggedOutUI();
+                    hideGameSection();
+                }
+            }
+        });
+        
+        function showLoggedInUI(user) {
+            document.getElementById('notLoggedIn').style.display = 'none';
+            document.getElementById('loggedIn').style.display = 'block';
+            document.getElementById('userName').innerText = user.displayName || (user.isGuest ? user.name : 'لاعب');
+            if (user.photoURL) {
+                document.getElementById('userPhoto').src = user.photoURL;
+                document.getElementById('userPhoto').style.display = 'block';
+            }
+            if (userData) {
+                document.getElementById('userLevel').innerHTML = `⭐ المستوى ${userData.level || 1}`;
+                document.getElementById('userCoins').innerHTML = `💰 ${userData.coins || 0} عملة`;
+            }
+        }
+        
+        function showLoggedOutUI() {
+            document.getElementById('notLoggedIn').style.display = 'block';
+            document.getElementById('loggedIn').style.display = 'none';
+        }
+        
+        function showGameSection() {
+            document.getElementById('gameSection').style.display = 'block';
+        }
+        
+        function hideGameSection() {
+            document.getElementById('gameSection').style.display = 'none';
+        }
+        
+        async function loadUserData(uid) {
+            const snapshot = await database.ref(`users/${uid}`).once('value');
+            if (snapshot.exists()) {
+                userData = { ...userData, ...snapshot.val() };
+                document.getElementById('userLevel').innerHTML = `⭐ المستوى ${userData.level || 1}`;
+                document.getElementById('userCoins').innerHTML = `💰 ${userData.coins || 0} عملة`;
+            }
+        }
+        
+        function createGame(mode) {
+            if (!currentUser) {
+                showError('الرجاء تسجيل الدخول أولاً');
+                return;
+            }
+            const gameId = generateGameCode();
+            window.location.href = `game.html?mode=${mode}&gameId=${gameId}`;
+        }
+        
+        function joinGame() {
+            const gameCode = document.getElementById('gameCode').value.trim().toUpperCase();
+            if (!gameCode) {
+                showError('الرجاء إدخال رمز اللعبة');
+                return;
+            }
+            window.location.href = `game.html?mode=online&gameId=${gameCode}`;
+        }
+        
+        function generateGameCode() {
+            return Math.random().toString(36).substring(2, 8).toUpperCase();
+        }
+        
+        function logout() {
+            if (isGuest) {
+                localStorage.removeItem('guestUser');
+                currentUser = null;
+                isGuest = false;
+                showLoggedOutUI();
+                hideGameSection();
+            } else {
+                auth.signOut().then(() => {
+                    showLoggedOutUI();
+                    hideGameSection();
+                });
+            }
+        }
+        
+        function changeTheme(theme) {
+            document.body.className = `theme-${theme}`;
+            if (currentUser && !isGuest) {
+                database.ref(`users/${currentUser.uid}`).update({ currentTheme: theme });
+            }
+            closeModal();
+        }
+        
+        function changeLanguage(lang) {
+            localStorage.setItem('language', lang);
+            // تحديث النصوص حسب اللغة
+            closeModal();
+        }
+        
+        function openThemeSelector() {
+            document.getElementById('themeModal').style.display = 'flex';
+        }
+        
+        function openLanguageSelector() {
+            document.getElementById('langModal').style.display = 'flex';
+        }
+        
+        function closeModal() {
+            document.getElementById('themeModal').style.display = 'none';
+            document.getElementById('langModal').style.display = 'none';
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 3000);
+        }
+        
+        // تحميل الثيم المحفوظ
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.body.className = `theme-${savedTheme}`;
+        }
+        
+        // إظهار إعدادات AI عند اختيار وضع ضد الكمبيوتر
+        document.querySelector('[onclick="createGame(\'vsAI\')"]')?.addEventListener('click', () => {
+            document.getElementById('aiSettings').style.display = 'block';
+        });
+        
+        document.querySelector('[onclick="createGame(\'online\')"]')?.addEventListener('click', () => {
+            document.getElementById('aiSettings').style.display = 'none';
+        });
+    </script>
+</body>
+                      </html>
