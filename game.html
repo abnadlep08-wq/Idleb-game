@@ -3,111 +3,310 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>جاري اللعب - لعبة الجوكر</title>
+    <title>جاري اللعب - JOKER</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* أنماط خاصة بشاشة اللعب */
+        .game-loading {
+            text-align: center;
+            padding: 50px;
+            color: white;
+        }
+        .game-error {
+            text-align: center;
+            padding: 50px;
+            color: #ef4444;
+        }
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: #3B82F6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .back-home {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: #3B82F6;
+            color: white;
+            text-decoration: none;
+            border-radius: 40px;
+        }
+    </style>
 </head>
 <body>
-    <div class="game-container">
-        <!-- الهيدر -->
-        <div class="game-header">
-            <div class="game-code">🎮 رمز: <span id="gameCodeDisplay">---</span></div>
-            <div class="turn-indicator" id="turnIndicator">⏳ جاري التحميل...</div>
-            <div class="timer" id="turnTimer">30</div>
-            <button onclick="leaveGame()" class="leave-btn">🚪 مغادرة</button>
-        </div>
-        
-        <!-- اللاعبون الآخرون -->
-        <div class="other-players" id="otherPlayers"></div>
-        
-        <!-- منطقة اللعب المركزية -->
-        <div class="center-area">
-            <div class="deck-info">
-                <div class="deck-card">🃟</div>
-                <div class="deck-count" id="deckCount">0</div>
+    <div class="game-loading" id="loadingScreen">
+        <div class="loading-spinner"></div>
+        <h3>⏳ جاري تحميل اللعبة...</h3>
+        <p>الرجاء الانتظار</p>
+    </div>
+    
+    <div class="game-error" id="errorScreen" style="display: none;">
+        <h2>⚠️ حدث خطأ</h2>
+        <p id="errorMessage"></p>
+        <a href="index.html" class="back-home">🏠 العودة للرئيسية</a>
+    </div>
+    
+    <div id="gameContent" style="display: none;">
+        <!-- محتوى اللعبة الحقيقي -->
+        <div class="game-container">
+            <div class="game-header">
+                <div class="game-code">🎮 رمز: <span id="gameCodeDisplay">---</span></div>
+                <div class="turn-indicator" id="turnIndicator">⏳ انتظر...</div>
+                <button onclick="leaveGame()" class="leave-btn">🚪 مغادرة</button>
             </div>
-            <div class="played-card-area">
-                <div class="played-card" id="playedCard">🎴</div>
-                <div class="current-suit" id="currentSuit"></div>
-            </div>
-        </div>
-        
-        <!-- أوراق اللاعب -->
-        <div class="player-hand" id="playerHand"></div>
-        
-        <!-- أزرار التحكم -->
-        <div class="controls">
-            <button onclick="playSelectedCard()" class="play-btn" id="playBtn">🎯 رمي الورقة</button>
-            <button onclick="passTurn()" class="pass-btn" id="passBtn" disabled>⏭️ تمرير</button>
-        </div>
-        
-        <!-- الدردشة -->
-        <div class="chat-container">
-            <div class="chat-header">
-                <span>💬 الدردشة</span>
-                <button onclick="toggleChat()" class="chat-toggle">_</button>
-            </div>
-            <div class="chat-messages" id="chatMessages"></div>
-            <div class="chat-input-area">
-                <input type="text" id="chatInput" class="chat-input" placeholder="اكتب رسالة...">
-                <div class="emoji-picker">
-                    <button onclick="sendEmoji('😊')" class="emoji-btn">😊</button>
-                    <button onclick="sendEmoji('🎉')" class="emoji-btn">🎉</button>
-                    <button onclick="sendEmoji('🔥')" class="emoji-btn">🔥</button>
-                    <button onclick="sendEmoji('😱')" class="emoji-btn">😱</button>
-                    <button onclick="sendEmoji('👏')" class="emoji-btn">👏</button>
+            
+            <div class="other-players" id="otherPlayers"></div>
+            
+            <div class="center-area">
+                <div class="deck-info">
+                    <div class="deck-card">🃟</div>
+                    <div class="deck-count" id="deckCount">0</div>
                 </div>
-                <button onclick="sendChatMessage()" class="send-btn">📤</button>
+                <div class="played-card-area">
+                    <div class="played-card" id="playedCard">🎴</div>
+                    <div class="current-suit" id="currentSuit"></div>
+                </div>
             </div>
+            
+            <div class="player-hand" id="playerHand"></div>
+            
+            <div class="controls">
+                <button id="playBtn" class="play-btn" disabled>🎯 رمي الورقة</button>
+                <button id="passBtn" class="pass-btn" disabled>⏭️ تمرير</button>
+            </div>
+            
+            <div class="game-messages" id="gameMessages"></div>
         </div>
-        
-        <!-- رسائل اللعبة -->
-        <div class="game-messages" id="gameMessages"></div>
     </div>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
-    <script src="auth.js"></script>
-    <script src="sound.js"></script>
-    <script src="ai.js"></script>
-    <script src="chat.js"></script>
-    <script src="game.js"></script>
     
     <script>
+        // ============= المتغيرات =============
         let currentGameId = null;
-        let currentPlayerId = null;
+        let currentUser = null;
         let gameData = null;
         let selectedCardIndex = null;
-        let turnTimerInterval = null;
         
-        // تهيئة اللعبة
-        const urlParams = new URLSearchParams(window.location.search);
-        currentGameId = urlParams.get('gameId');
-        const mode = urlParams.get('mode');
-        
-        if (!currentGameId) {
-            window.location.href = 'index.html';
+        // ============= الحصول على معاملات الرابط =============
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                gameId: params.get('gameId')
+            };
         }
         
-        document.getElementById('gameCodeDisplay').innerText = currentGameId;
+        // ============= عرض الخطأ =============
+        function showError(message) {
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('errorScreen').style.display = 'block';
+            document.getElementById('errorMessage').innerHTML = message;
+        }
         
-        // تحميل بيانات اللعبة
-        function loadGame() {
+        // ============= تهيئة اللعبة =============
+        async function initGame() {
+            const params = getUrlParams();
+            currentGameId = params.gameId;
+            
+            if (!currentGameId) {
+                showError('لا يوجد رمز للعبة');
+                return;
+            }
+            
+            document.getElementById('gameCodeDisplay').innerText = currentGameId;
+            
+            // التحقق من تسجيل الدخول
+            const user = auth.currentUser;
+            const guestUser = localStorage.getItem('guestUser');
+            
+            if (user) {
+                currentUser = user;
+            } else if (guestUser) {
+                currentUser = JSON.parse(guestUser);
+            } else {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // تحميل بيانات اللعبة
+            const gameRef = database.ref(`games/${currentGameId}`);
+            const snapshot = await gameRef.once('value');
+            gameData = snapshot.val();
+            
+            if (!gameData) {
+                // اللعبة غير موجودة، ننشئها
+                await createNewGame();
+            } else {
+                // اللعبة موجودة، ننضم لها
+                await joinExistingGame();
+            }
+        }
+        
+        // ============= إنشاء لعبة جديدة =============
+        async function createNewGame() {
+            // إنشاء مجموعة بطاقات
+            const suits = ['hearts', 'diamonds', 'clubs', 'spades'];
+            const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+            let deck = [];
+            
+            for (let suit of suits) {
+                for (let rank of ranks) {
+                    deck.push({ rank, suit });
+                }
+            }
+            deck.push({ rank: 'JOKER', suit: 'joker' });
+            
+            // خلط البطاقات
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+            
+            const newGame = {
+                gameId: currentGameId,
+                players: {
+                    [currentUser.uid]: {
+                        id: currentUser.uid,
+                        name: currentUser.displayName || (currentUser.isGuest ? currentUser.displayName : 'لاعب'),
+                        hand: [],
+                        cardsLeft: 0,
+                        order: 0
+                    }
+                },
+                deck: deck,
+                playedCards: [],
+                currentTurn: currentUser.uid,
+                currentSuit: null,
+                gameStarted: false,
+                gameEnded: false,
+                winner: null,
+                playersOrder: [currentUser.uid],
+                createdAt: Date.now(),
+                turnStartTime: Date.now()
+            };
+            
+            await database.ref(`games/${currentGameId}`).set(newGame);
+            
+            // بدء اللعبة (بعد 2 ثانية للانتظار)
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+            
+            document.getElementById('loadingScreen').innerHTML = `
+                <div class="loading-spinner"></div>
+                <h3>🎮 تم إنشاء اللعبة!</h3>
+                <p>رمز اللعبة: <strong>${currentGameId}</strong></p>
+                <p>انتظر انضمام لاعب آخر...</p>
+                <a href="index.html" class="back-home">🏠 العودة</a>
+            `;
+        }
+        
+        // ============= الانضمام للعبة موجودة =============
+        async function joinExistingGame() {
+            // التحقق إذا كان اللاعب موجود بالفعل
+            if (!gameData.players[currentUser.uid]) {
+                // إضافة اللاعب
+                const order = Object.keys(gameData.players).length;
+                gameData.players[currentUser.uid] = {
+                    id: currentUser.uid,
+                    name: currentUser.displayName || (currentUser.isGuest ? currentUser.displayName : 'لاعب'),
+                    hand: [],
+                    cardsLeft: 0,
+                    order: order
+                };
+                gameData.playersOrder.push(currentUser.uid);
+                
+                await database.ref(`games/${currentGameId}`).update({
+                    players: gameData.players,
+                    playersOrder: gameData.playersOrder
+                });
+            }
+            
+            // بدء اللعبة إذا كان هناك لاعبين كافيين
+            if (Object.keys(gameData.players).length >= 2 && !gameData.gameStarted) {
+                await startGame();
+            } else {
+                document.getElementById('loadingScreen').innerHTML = `
+                    <div class="loading-spinner"></div>
+                    <h3>⏳ انتظار لاعبين...</h3>
+                    <p>اللاعبون المتصلون: ${Object.keys(gameData.players).length}/4</p>
+                    <p>رمز اللعبة: <strong>${currentGameId}</strong></p>
+                    <button onclick="window.location.href='index.html'" class="back-home">🏠 العودة</button>
+                `;
+                
+                // الاستماع لبدء اللعبة
+                database.ref(`games/${currentGameId}`).on('value', (snapshot) => {
+                    const updated = snapshot.val();
+                    if (updated && updated.gameStarted) {
+                        window.location.reload();
+                    }
+                });
+            }
+        }
+        
+        // ============= بدء اللعبة وتوزيع البطاقات =============
+        async function startGame() {
+            const players = Object.values(gameData.players);
+            const deck = [...gameData.deck];
+            const cardsPerPlayer = Math.floor(deck.length / players.length);
+            
+            let remainingCards = [...deck];
+            
+            for (let player of players) {
+                const playerCards = remainingCards.splice(0, cardsPerPlayer);
+                gameData.players[player.id].hand = playerCards;
+                gameData.players[player.id].cardsLeft = playerCards.length;
+            }
+            
+            gameData.deck = remainingCards;
+            gameData.gameStarted = true;
+            
+            // وضع أول بطاقة
+            if (gameData.playedCards.length === 0 && gameData.deck.length > 0) {
+                const firstCard = gameData.deck.pop();
+                gameData.playedCards.push(firstCard);
+                gameData.currentSuit = firstCard.suit;
+            }
+            
+            await database.ref(`games/${currentGameId}`).update({
+                players: gameData.players,
+                deck: gameData.deck,
+                playedCards: gameData.playedCards,
+                currentSuit: gameData.currentSuit,
+                gameStarted: true
+            });
+            
+            // إعادة تحميل الصفحة لعرض اللعبة
+            window.location.reload();
+        }
+        
+        // ============= عرض واجهة اللعب =============
+        function showGameUI() {
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('gameContent').style.display = 'block';
+            
+            // الاستماع لتحديثات اللعبة
             database.ref(`games/${currentGameId}`).on('value', (snapshot) => {
                 gameData = snapshot.val();
                 if (gameData) {
-                    updateGameUI();
-                    if (gameData.gameEnded) {
-                        handleGameEnd();
-                    }
-                } else {
-                    window.location.href = 'index.html';
+                    updateUI();
                 }
             });
         }
         
-        function updateGameUI() {
+        // ============= تحديث الواجهة =============
+        function updateUI() {
             if (!gameData) return;
             
             const currentPlayer = gameData.players[currentUser.uid];
@@ -122,14 +321,14 @@
             const turnIndicator = document.getElementById('turnIndicator');
             if (isMyTurn) {
                 turnIndicator.innerHTML = '🎯 دورك الآن!';
-                turnIndicator.style.background = '#4CAF50';
+                turnIndicator.style.background = '#22c55e';
             } else {
                 const playerTurn = gameData.players[gameData.currentTurn];
                 turnIndicator.innerHTML = `⏳ دور: ${playerTurn?.name || 'اللاعب'}`;
-                turnIndicator.style.background = '#ff9800';
+                turnIndicator.style.background = '#f59e0b';
             }
             
-            // تحديث الأوراق
+            // تحديث أوراق اللاعب
             updatePlayerHand(currentPlayer.hand);
             
             // تحديث اللاعبين الآخرين
@@ -143,7 +342,7 @@
             }
             
             // تحديث عدد البطاقات
-            document.getElementById('deckCount').innerHTML = `${gameData.deck?.length || 0} بطاقة`;
+            document.getElementById('deckCount').innerHTML = `${gameData.deck?.length || 0}`;
             
             // تحديث الأزرار
             const playBtn = document.getElementById('playBtn');
@@ -151,16 +350,20 @@
             
             if (isMyTurn && !gameData.gameEnded) {
                 playBtn.disabled = false;
-                const hasMatchingSuit = checkHasMatchingSuit(currentPlayer.hand, gameData.currentSuit);
+                const hasMatchingSuit = currentPlayer.hand.some(c => c.suit === gameData.currentSuit && c.rank !== 'JOKER');
                 passBtn.disabled = hasMatchingSuit;
             } else {
                 playBtn.disabled = true;
                 passBtn.disabled = true;
             }
             
-            // تحديث المؤقت
-            if (isMyTurn && gameData.turnStartTime) {
-                startTurnTimer();
+            // التحقق من الفوز
+            if (gameData.gameEnded) {
+                const winner = gameData.players[gameData.winner];
+                addGameMessage(`🏆 ${winner.name} فاز باللعبة! 🏆`);
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 3000);
             }
         }
         
@@ -170,113 +373,23 @@
             
             hand.forEach((card, index) => {
                 const cardDiv = document.createElement('div');
-                cardDiv.className = `card ${card.suit} ${userData.currentSkin !== 'classic' ? `card-skin-${userData.currentSkin}` : ''}`;
+                cardDiv.className = 'card';
                 
                 if (card.rank === 'JOKER') {
-                    cardDiv.innerHTML = `
-                        <div class="card-rank">🃏</div>
-                        <div class="card-suit">JOKER</div>
-                    `;
+                    cardDiv.innerHTML = `<div class="card-rank">🃏</div><div class="card-suit">JOKER</div>`;
                 } else {
                     const suitSymbol = getSuitSymbol(card.suit);
-                    cardDiv.innerHTML = `
-                        <div class="card-rank">${card.rank}</div>
-                        <div class="card-suit">${suitSymbol}</div>
-                    `;
+                    cardDiv.innerHTML = `<div class="card-rank">${card.rank}</div><div class="card-suit">${suitSymbol}</div>`;
                 }
                 
-                cardDiv.onclick = () => selectCard(index);
-                if (selectedCardIndex === index) {
+                cardDiv.onclick = () => {
+                    selectedCardIndex = index;
+                    document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
                     cardDiv.classList.add('selected');
-                }
+                };
                 
                 container.appendChild(cardDiv);
             });
-        }
-        
-        function selectCard(index) {
-            if (selectedCardIndex === index) {
-                selectedCardIndex = null;
-            } else {
-                selectedCardIndex = index;
-            }
-            updatePlayerHand(gameData.players[currentUser.uid].hand);
-        }
-        
-        async function playSelectedCard() {
-            if (selectedCardIndex === null) {
-                addGameMessage('⚠️ الرجاء اختيار ورقة أولاً');
-                return;
-            }
-            
-            const currentPlayer = gameData.players[currentUser.uid];
-            const selectedCard = currentPlayer.hand[selectedCardIndex];
-            const isValid = validateMove(selectedCard, gameData.currentSuit, currentPlayer.hand);
-            
-            if (!isValid) {
-                addGameMessage('❌ لا يمكنك رمي هذه الورقة!');
-                return;
-            }
-            
-            playSound('play');
-            
-            const newHand = [...currentPlayer.hand];
-            newHand.splice(selectedCardIndex, 1);
-            
-            const updates = {
-                [`players/${currentUser.uid}/hand`]: newHand,
-                [`players/${currentUser.uid}/cardsLeft`]: newHand.length,
-                [`playedCards`]: [...gameData.playedCards, selectedCard],
-                [`currentSuit`]: selectedCard.rank === 'JOKER' ? gameData.currentSuit : selectedCard.suit,
-                turnStartTime: Date.now()
-            };
-            
-            if (newHand.length === 0) {
-                updates.gameEnded = true;
-                updates.winner = currentUser.uid;
-                await handleWin(currentUser.uid);
-            } else {
-                updates.currentTurn = getNextPlayer();
-            }
-            
-            await database.ref(`games/${currentGameId}`).update(updates);
-            selectedCardIndex = null;
-        }
-        
-        async function passTurn() {
-            const currentPlayer = gameData.players[currentUser.uid];
-            const hasMatchingSuit = checkHasMatchingSuit(currentPlayer.hand, gameData.currentSuit);
-            
-            if (hasMatchingSuit) {
-                addGameMessage('❌ لا يمكنك التمرير! لديك ورقة من نفس النوع');
-                return;
-            }
-            
-            playSound('click');
-            await database.ref(`games/${currentGameId}`).update({
-                currentTurn: getNextPlayer(),
-                turnStartTime: Date.now()
-            });
-            
-            addGameMessage(`⏭️ ${currentPlayer.name} قام بالتمرير`);
-        }
-        
-        function validateMove(card, currentSuit, hand) {
-            if (card.rank === 'JOKER') return true;
-            if (card.suit === currentSuit) return true;
-            const hasMatchingSuit = checkHasMatchingSuit(hand, currentSuit);
-            return !hasMatchingSuit;
-        }
-        
-        function checkHasMatchingSuit(hand, suit) {
-            return hand.some(card => card.suit === suit && card.rank !== 'JOKER');
-        }
-        
-        function getNextPlayer() {
-            const order = gameData.playersOrder;
-            const currentIndex = order.indexOf(gameData.currentTurn);
-            const nextIndex = (currentIndex + 1) % order.length;
-            return order[nextIndex];
         }
         
         function updateOtherPlayers() {
@@ -285,7 +398,7 @@
             
             container.innerHTML = otherPlayers.map(player => `
                 <div class="player-card ${gameData.currentTurn === player.id ? 'active-turn' : ''}">
-                    <div class="player-name">${player.name} ${player.isAI ? '🤖' : ''}</div>
+                    <div class="player-name">${player.name}</div>
                     <div class="player-card-count">${player.hand?.length || 0} 🃏</div>
                 </div>
             `).join('');
@@ -295,8 +408,6 @@
             const playedCardDiv = document.getElementById('playedCard');
             if (card.rank === 'JOKER') {
                 playedCardDiv.innerHTML = '🃏';
-                playedCardDiv.style.fontSize = '4em';
-                playSound('joker');
             } else {
                 const suitSymbol = getSuitSymbol(card.suit);
                 playedCardDiv.innerHTML = `${card.rank}<br>${suitSymbol}`;
@@ -315,126 +426,79 @@
         }
         
         function addGameMessage(message) {
-            const messagesDiv = document.getElementById('gameMessages');
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'message';
-            msgDiv.innerHTML = message;
-            messagesDiv.appendChild(msgDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-            
-            setTimeout(() => {
-                if (messagesDiv.children.length > 20) {
-                    messagesDiv.removeChild(messagesDiv.firstChild);
-                }
-            }, 100);
+            const container = document.getElementById('gameMessages');
+            const msg = document.createElement('div');
+            msg.className = 'message';
+            msg.innerHTML = message;
+            container.appendChild(msg);
+            container.scrollTop = container.scrollHeight;
         }
         
-        function startTurnTimer() {
-            if (turnTimerInterval) clearInterval(turnTimerInterval);
+        async function playSelectedCard() {
+            if (selectedCardIndex === null) {
+                addGameMessage('⚠️ اختر ورقة أولاً');
+                return;
+            }
             
-            turnTimerInterval = setInterval(async () => {
-                if (!gameData || gameData.gameEnded || gameData.currentTurn !== currentUser.uid) {
-                    clearInterval(turnTimerInterval);
+            const currentPlayer = gameData.players[currentUser.uid];
+            const selectedCard = currentPlayer.hand[selectedCardIndex];
+            
+            // التحقق من صحة الحركة
+            if (selectedCard.rank !== 'JOKER' && selectedCard.suit !== gameData.currentSuit) {
+                const hasMatchingSuit = currentPlayer.hand.some(c => c.suit === gameData.currentSuit && c.rank !== 'JOKER');
+                if (hasMatchingSuit) {
+                    addGameMessage('❌ يجب رمي ورقة من نفس النوع!');
                     return;
                 }
-                
-                const elapsed = Date.now() - gameData.turnStartTime;
-                const remaining = Math.max(0, 30000 - elapsed);
-                const seconds = Math.ceil(remaining / 1000);
-                
-                const timerElement = document.getElementById('turnTimer');
-                timerElement.textContent = seconds;
-                
-                if (seconds <= 5) {
-                    timerElement.classList.add('danger');
-                    if (seconds === 5) playSound('timeout');
-                } else if (seconds <= 10) {
-                    timerElement.classList.add('warning');
-                } else {
-                    timerElement.classList.remove('warning', 'danger');
-                }
-                
-                if (remaining <= 0) {
-                    clearInterval(turnTimerInterval);
-                    await autoPass();
-                }
-            }, 1000);
+            }
+            
+            // إزالة البطاقة
+            const newHand = [...currentPlayer.hand];
+            newHand.splice(selectedCardIndex, 1);
+            
+            // تحديث اللعبة
+            const updates = {
+                [`players/${currentUser.uid}/hand`]: newHand,
+                [`players/${currentUser.uid}/cardsLeft`]: newHand.length,
+                [`playedCards`]: [...gameData.playedCards, selectedCard],
+                [`currentSuit`]: selectedCard.rank === 'JOKER' ? gameData.currentSuit : selectedCard.suit
+            };
+            
+            // تحديد اللاعب التالي
+            const order = gameData.playersOrder;
+            const currentIndex = order.indexOf(gameData.currentTurn);
+            const nextIndex = (currentIndex + 1) % order.length;
+            updates.currentTurn = order[nextIndex];
+            
+            // التحقق من الفوز
+            if (newHand.length === 0) {
+                updates.gameEnded = true;
+                updates.winner = currentUser.uid;
+                addGameMessage(`🎉 فزت باللعبة! 🎉`);
+            }
+            
+            await database.ref(`games/${currentGameId}`).update(updates);
+            selectedCardIndex = null;
         }
         
-        async function autoPass() {
-            addGameMessage('⏰ انتهى الوقت، تم تمرير الدور تلقائياً');
+        async function passTurn() {
+            const currentPlayer = gameData.players[currentUser.uid];
+            const hasMatchingSuit = currentPlayer.hand.some(c => c.suit === gameData.currentSuit && c.rank !== 'JOKER');
+            
+            if (hasMatchingSuit) {
+                addGameMessage('❌ لا يمكنك التمرير! لديك ورقة من نفس النوع');
+                return;
+            }
+            
+            const order = gameData.playersOrder;
+            const currentIndex = order.indexOf(gameData.currentTurn);
+            const nextIndex = (currentIndex + 1) % order.length;
+            
             await database.ref(`games/${currentGameId}`).update({
-                currentTurn: getNextPlayer(),
-                turnStartTime: Date.now()
+                currentTurn: order[nextIndex]
             });
-        }
-        
-        async function handleWin(winnerId) {
-            playSound('win');
-            const winner = gameData.players[winnerId];
-            addGameMessage(`🏆 ${winner.name} فاز باللعبة! 🏆`);
             
-            // تحديث الإحصائيات
-            if (!winner.isAI && winnerId !== 'guest') {
-                await updateStats(winnerId, true);
-            }
-            
-            for (let pid in gameData.players) {
-                if (pid !== winnerId && !gameData.players[pid].isAI && pid !== 'guest') {
-                    await updateStats(pid, false);
-                }
-            }
-            
-            setTimeout(() => {
-                showVictoryScreen(winner.name);
-            }, 2000);
-        }
-        
-        async function updateStats(uid, isWinner) {
-            const updates = { gamesPlayed: firebase.database.ServerValue.increment(1) };
-            if (isWinner) {
-                updates.wins = firebase.database.ServerValue.increment(1);
-                updates.xp = firebase.database.ServerValue.increment(50);
-                updates.coins = firebase.database.ServerValue.increment(20);
-            } else {
-                updates.losses = firebase.database.ServerValue.increment(1);
-                updates.xp = firebase.database.ServerValue.increment(10);
-                updates.coins = firebase.database.ServerValue.increment(5);
-            }
-            await database.ref(`users/${uid}`).update(updates);
-        }
-        
-        function showVictoryScreen(winnerName) {
-            const modal = document.createElement('div');
-            modal.className = 'victory-modal';
-            modal.innerHTML = `
-                <div class="victory-content">
-                    <div class="victory-trophy">🏆</div>
-                    <h2>${winnerName} فاز باللعبة!</h2>
-                    <p>🎉 +50 XP | +20 عملة 🎉</p>
-                    <button onclick="window.location.href='index.html'">🏠 الرئيسية</button>
-                    <button onclick="window.location.reload()">🎮 لعبة جديدة</button>
-                </div>
-            `;
-            document.body.appendChild(modal);
-        }
-        
-        function sendChatMessage() {
-            const input = document.getElementById('chatInput');
-            const message = input.value.trim();
-            if (message) {
-                sendChatMessageToGame(message, currentGameId);
-                input.value = '';
-            }
-        }
-        
-        function sendEmoji(emoji) {
-            sendChatMessageToGame(emoji, currentGameId);
-        }
-        
-        function toggleChat() {
-            const chatContainer = document.querySelector('.chat-container');
-            chatContainer.classList.toggle('collapsed');
+            addGameMessage(`⏭️ ${currentPlayer.name} قام بالتمرير`);
         }
         
         function leaveGame() {
@@ -444,20 +508,24 @@
             }
         }
         
-        function handleGameEnd() {
-            if (turnTimerInterval) clearInterval(turnTimerInterval);
-        }
+        // ============= ربط الأزرار =============
+        document.getElementById('playBtn').onclick = playSelectedCard;
+        document.getElementById('passBtn').onclick = passTurn;
         
-        // بدء اللعبة
-        auth.onAuthStateChanged(user => {
-            if (!user && !localStorage.getItem('guestUser')) {
-                window.location.href = 'index.html';
+        // ============= بدء التشغيل =============
+        auth.onAuthStateChanged(async (user) => {
+            if (user || localStorage.getItem('guestUser')) {
+                await initGame();
+                // إذا كانت اللعبة بدأت، اعرض الواجهة
+                const snapshot = await database.ref(`games/${currentGameId}`).once('value');
+                const game = snapshot.val();
+                if (game && game.gameStarted && game.players[currentUser?.uid || JSON.parse(localStorage.getItem('guestUser'))?.uid]) {
+                    showGameUI();
+                }
             } else {
-                currentUser = user || JSON.parse(localStorage.getItem('guestUser'));
-                loadGame();
-                listenToChat(currentGameId);
+                window.location.href = 'index.html';
             }
         });
     </script>
 </body>
-                      </html>
+    </html>
