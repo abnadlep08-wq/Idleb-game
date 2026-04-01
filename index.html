@@ -2,550 +2,425 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>JOKER | لعبة الجوكر</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جاري اللعب - JOKER</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Cairo', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             min-height: 100vh;
+            padding: 20px;
             color: white;
         }
-
         .container {
-            max-width: 450px;
+            max-width: 800px;
             margin: 0 auto;
-            padding: 40px 20px;
-            min-height: 100vh;
+        }
+        .header {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 15px;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .hero {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .hero h1 {
-            font-size: 3rem;
-            background: linear-gradient(135deg, #fbbf24, #f59e0b);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
-        }
-
-        .hero p {
-            color: #94a3b8;
-            font-size: 0.9rem;
-        }
-
-        .card-box {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 32px;
-            padding: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 24px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 60px;
-            padding: 4px;
-        }
-
-        .tab {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            background: transparent;
-            color: #94a3b8;
-            font-size: 1rem;
-            font-weight: 600;
-            border-radius: 60px;
-            cursor: pointer;
-            font-family: inherit;
-            transition: all 0.3s;
-        }
-
-        .tab.active {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            color: white;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .btn-google {
-            width: 100%;
-            padding: 14px;
-            background: white;
-            border: none;
-            border-radius: 60px;
-            font-size: 1rem;
-            font-weight: 600;
-            color: #1f2937;
-            display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            gap: 12px;
-            cursor: pointer;
-            font-family: inherit;
-            transition: all 0.3s;
+            margin-bottom: 20px;
         }
-
-        .btn-google:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        .game-code {
+            background: rgba(0,0,0,0.5);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-family: monospace;
+            font-size: 1.2rem;
         }
-
-        .btn-guest {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #475569, #334155);
-            border: none;
-            border-radius: 60px;
-            font-size: 1rem;
-            font-weight: 600;
-            color: white;
-            cursor: pointer;
-            font-family: inherit;
-            transition: all 0.3s;
-            margin-top: 16px;
-        }
-
-        .btn-guest:hover {
-            transform: translateY(-2px);
-            background: linear-gradient(135deg, #5a6e8c, #3b4a60);
-        }
-
-        .guest-info {
-            text-align: center;
-            margin-bottom: 16px;
-            color: #94a3b8;
-            font-size: 0.9rem;
-        }
-
-        .guest-note {
-            font-size: 0.75rem;
-            margin-top: 5px;
-        }
-
-        .error-msg {
-            background: #ef4444;
-            color: white;
-            padding: 12px;
-            border-radius: 60px;
-            text-align: center;
-            margin-top: 20px;
-            display: none;
-            font-size: 0.85rem;
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: #10b981;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 60px;
-            font-weight: 600;
-            transition: all 0.3s;
-            opacity: 0;
-            pointer-events: none;
-            z-index: 1000;
-        }
-
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
-
-        .toast.error {
-            background: #ef4444;
-        }
-
-        .user-bar {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 80px;
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-
-        .user-avatar {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .turn {
+            background: #f59e0b;
+            padding: 8px 20px;
+            border-radius: 30px;
             font-weight: bold;
         }
-
-        .user-details {
-            flex: 1;
-        }
-
-        .user-name {
-            font-weight: 700;
-            margin-bottom: 3px;
-        }
-
-        .user-stats {
-            display: flex;
-            gap: 12px;
-            font-size: 0.7rem;
-            color: #94a3b8;
-        }
-
-        .logout-btn {
-            background: rgba(239, 68, 68, 0.2);
+        .leave-btn {
+            background: #e53e3e;
             border: none;
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            color: #ef4444;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-
-        .btn-primary {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            border: none;
-            border-radius: 60px;
+            padding: 8px 20px;
+            border-radius: 30px;
             color: white;
-            font-weight: 700;
-            font-size: 1rem;
             cursor: pointer;
-            font-family: inherit;
-            margin-bottom: 12px;
         }
-
-        .join-section {
+        .players {
             display: flex;
-            gap: 10px;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
         }
-
-        .join-section input {
-            flex: 1;
-            padding: 14px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 60px;
-            color: white;
+        .player-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 10px 20px;
             text-align: center;
-            letter-spacing: 2px;
-            font-family: inherit;
+            min-width: 100px;
         }
-
-        .join-section input:focus {
-            outline: none;
-            border-color: #3b82f6;
+        .player-card.active {
+            background: #f59e0b;
+            border: 2px solid white;
         }
-
-        .btn-secondary {
-            padding: 14px 24px;
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-            border: none;
-            border-radius: 60px;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
+        .player-name {
+            font-weight: bold;
         }
-
-        .nav-links {
+        .player-cards {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .center {
             display: flex;
             justify-content: center;
+            gap: 50px;
+            margin: 30px 0;
+        }
+        .deck, .played {
+            text-align: center;
+        }
+        .deck-card, .played-card {
+            width: 100px;
+            height: 140px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            margin-bottom: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .hand {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 30px 0;
+            min-height: 180px;
+        }
+        .card {
+            width: 80px;
+            height: 110px;
+            background: white;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: black;
+        }
+        .card.selected {
+            transform: translateY(-15px);
+            border: 3px solid #f59e0b;
+            box-shadow: 0 0 15px #f59e0b;
+        }
+        .card-rank {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        .card-suit {
+            font-size: 2rem;
+        }
+        .controls {
+            display: flex;
             gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .play-btn {
+            background: #38a169;
+            color: white;
+        }
+        .pass-btn {
+            background: #e53e3e;
+            color: white;
+        }
+        .messages {
+            background: rgba(0,0,0,0.5);
+            border-radius: 15px;
+            padding: 15px;
+            height: 150px;
+            overflow-y: auto;
             margin-top: 20px;
         }
-
-        .nav-link {
-            background: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 8px 20px;
-            border-radius: 40px;
-            color: #94a3b8;
-            cursor: pointer;
-            font-family: inherit;
+        .message {
+            padding: 5px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.9rem;
         }
-
-        .nav-link:hover {
-            background: rgba(59, 130, 246, 0.2);
-            border-color: #3b82f6;
+        .back-home {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #aaa;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="hero">
-            <h1>JOKER</h1>
-            <p>آخر من تبقى معه أوراق يخسر!</p>
+        <div class="header">
+            <div class="game-code" id="gameCode">---</div>
+            <div class="turn" id="turnText">⏳ جاري التحميل...</div>
+            <button class="leave-btn" onclick="leaveGame()">🚪 مغادرة</button>
         </div>
 
-        <div id="authBox" class="card-box">
-            <div class="tabs">
-                <button class="tab active" onclick="switchTab('login')">تسجيل الدخول</button>
-                <button class="tab" onclick="switchTab('guest')">لعب كضيف</button>
-            </div>
+        <div class="players" id="playersList"></div>
 
-            <div id="loginTab" class="tab-content active">
-                <button id="googleBtn" class="btn-google">
-                    🚀 تسجيل الدخول بحساب Google
-                </button>
+        <div class="center">
+            <div class="deck">
+                <div class="deck-card">🃟</div>
+                <div id="deckCount">0</div>
             </div>
-
-            <div id="guestTab" class="tab-content">
-                <div class="guest-info">
-                    🎮 العب كضيف بدون حساب
-                    <div class="guest-note">لن يتم حفظ تقدمك</div>
-                </div>
-                <button id="guestBtn" class="btn-guest">
-                    👤 بدء اللعب كضيف
-                </button>
+            <div class="played">
+                <div class="played-card" id="playedCard">🎴</div>
+                <div id="currentSuit"></div>
             </div>
         </div>
 
-        <div id="gameSection" style="display: none;">
-            <div id="userBar" class="user-bar">
-                <div class="user-avatar" id="userAvatar">👤</div>
-                <div class="user-details">
-                    <div class="user-name" id="userName">---</div>
-                    <div class="user-stats">
-                        <span id="userLevel">⭐ المستوى 1</span>
-                        <span id="userCoins">💰 0</span>
-                    </div>
-                </div>
-                <button id="logoutBtn" class="logout-btn">🚪</button>
-            </div>
+        <div class="hand" id="hand"></div>
 
-            <button id="createGameBtn" class="btn-primary">🎮 إنشاء لعبة جديدة</button>
-            
-            <div class="join-section">
-                <input type="text" id="gameCodeInput" placeholder="رمز اللعبة" maxlength="6">
-                <button id="joinGameBtn" class="btn-secondary">🔍 انضم</button>
-            </div>
-
-            <div class="nav-links">
-                <button class="nav-link" onclick="window.location.href='profile.html'">👤 ملفي</button>
-                <button class="nav-link" onclick="window.location.href='leaderboard.html'">🏆 الترتيب</button>
-                <button class="nav-link" onclick="window.location.href='shop.html'">🛒 المتجر</button>
-            </div>
+        <div class="controls">
+            <button id="playBtn" class="play-btn" disabled>🎯 رمي الورقة</button>
+            <button id="passBtn" class="pass-btn" disabled>⏭️ تمرير</button>
         </div>
 
-        <div id="errorMsg" class="error-msg"></div>
+        <div class="messages" id="messages"></div>
+        <a href="index.html" class="back-home">🏠 العودة للرئيسية</a>
     </div>
-
-    <div id="toast" class="toast"></div>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="firebase-config.js"></script>
 
     <script>
-        // ============= متغيرات =============
+        // إعدادات Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyD-W-YXdIkNwJ3S2myifrdphHaxkmG0mw",
+            authDomain: "goker-idleb.firebaseapp.com",
+            databaseURL: "https://goker-idleb-default-rtdb.firebaseio.com",
+            projectId: "goker-idleb",
+            storageBucket: "goker-idleb.firebasestorage.app",
+            messagingSenderId: "803496116662",
+            appId: "1:803496116662:web:8becc21797bc6c2d208117"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        let gameId = null;
         let currentUser = null;
-        let isGuest = false;
-        let userData = { level: 1, coins: 0 };
+        let gameData = null;
+        let selectedCardIndex = null;
 
-        // ============= دوال مساعدة =============
-        function showToast(msg, isError = false) {
-            const toast = document.getElementById('toast');
-            toast.textContent = msg;
-            toast.className = 'toast show';
-            if (isError) toast.classList.add('error');
-            setTimeout(() => toast.classList.remove('show'), 3000);
+        // الحصول على معاملات الرابط
+        const urlParams = new URLSearchParams(window.location.search);
+        gameId = urlParams.get('gameId');
+
+        if (!gameId) {
+            window.location.href = 'index.html';
         }
 
-        function showError(msg) {
-            const errDiv = document.getElementById('errorMsg');
-            errDiv.textContent = msg;
-            errDiv.style.display = 'block';
-            setTimeout(() => errDiv.style.display = 'none', 4000);
+        document.getElementById('gameCode').innerText = gameId;
+
+        function addMessage(msg) {
+            const msgsDiv = document.getElementById('messages');
+            const div = document.createElement('div');
+            div.className = 'message';
+            div.innerHTML = msg;
+            msgsDiv.appendChild(div);
+            msgsDiv.scrollTop = msgsDiv.scrollHeight;
         }
 
-        function switchTab(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        function updateUI() {
+            if (!gameData) return;
             
-            if (tab === 'login') {
-                document.querySelectorAll('.tab')[0].classList.add('active');
-                document.getElementById('loginTab').classList.add('active');
+            const currentPlayer = gameData.players[currentUser?.uid];
+            if (!currentPlayer) return;
+
+            const isMyTurn = gameData.currentTurn === currentUser?.uid;
+            
+            // تحديث مؤشر الدور
+            const turnText = document.getElementById('turnText');
+            if (isMyTurn) {
+                turnText.innerHTML = '🎯 دورك الآن!';
+                turnText.style.background = '#38a169';
             } else {
-                document.querySelectorAll('.tab')[1].classList.add('active');
-                document.getElementById('guestTab').classList.add('active');
+                const playerTurn = gameData.players[gameData.currentTurn];
+                turnText.innerHTML = `⏳ دور: ${playerTurn?.name || 'اللاعب'}`;
+                turnText.style.background = '#f59e0b';
             }
-        }
 
-        // ============= Firebase Auth =============
-        function loginWithGoogle() {
-            console.log('Google login started...');
-            const provider = new firebase.auth.GoogleAuthProvider();
-            provider.setCustomParameters({ prompt: 'select_account' });
-            
-            auth.signInWithPopup(provider)
-                .then((result) => {
-                    console.log('Login success:', result.user);
-                    currentUser = result.user;
-                    isGuest = false;
-                    localStorage.removeItem('guestUser');
-                    saveUserToDB(currentUser);
-                    showGameUI();
-                    showToast(`مرحباً ${currentUser.displayName}! 🎉`);
-                })
-                .catch((error) => {
-                    console.error('Login error:', error);
-                    let msg = 'فشل تسجيل الدخول';
-                    if (error.code === 'auth/popup-blocked') msg = 'الرجاء السماح للنوافذ المنبثقة';
-                    else if (error.code === 'auth/network-request-failed') msg = 'فحص الاتصال بالإنترنت';
-                    showError(msg);
-                });
-        }
+            // تحديث اللاعبين
+            const playersDiv = document.getElementById('playersList');
+            playersDiv.innerHTML = Object.values(gameData.players).map(p => `
+                <div class="player-card ${gameData.currentTurn === p.id ? 'active' : ''}">
+                    <div class="player-name">${p.name}</div>
+                    <div class="player-cards">${p.hand?.length || 0} 🃏</div>
+                </div>
+            `).join('');
 
-        function loginAsGuest() {
-            const guestId = 'guest_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
-            const guestName = 'ضيف_' + Math.floor(Math.random() * 1000);
-            
-            currentUser = {
-                uid: guestId,
-                displayName: guestName,
-                photoURL: null,
-                isGuest: true
-            };
-            isGuest = true;
-            
-            localStorage.setItem('guestUser', JSON.stringify(currentUser));
-            userData = { level: 1, coins: 0, wins: 0, losses: 0 };
-            showGameUI();
-            showToast(`مرحباً ${guestName}! 🎮`);
-        }
-
-        async function saveUserToDB(user) {
-            if (user.isGuest) return;
-            
-            try {
-                const snapshot = await database.ref(`users/${user.uid}`).once('value');
-                if (!snapshot.exists()) {
-                    await database.ref(`users/${user.uid}`).set({
-                        uid: user.uid,
-                        name: user.displayName,
-                        email: user.email || '',
-                        photoURL: user.photoURL || '',
-                        createdAt: Date.now(),
-                        xp: 0,
-                        level: 1,
-                        coins: 100,
-                        wins: 0,
-                        losses: 0,
-                        gamesPlayed: 0
-                    });
+            // تحديث البطاقة الملعوبة
+            if (gameData.playedCards && gameData.playedCards.length > 0) {
+                const lastCard = gameData.playedCards[gameData.playedCards.length - 1];
+                const playedDiv = document.getElementById('playedCard');
+                if (lastCard.rank === 'JOKER') {
+                    playedDiv.innerHTML = '🃏';
+                } else {
+                    playedDiv.innerHTML = `${lastCard.rank}<br>${lastCard.suit === 'hearts' ? '♥️' : lastCard.suit === 'diamonds' ? '♦️' : lastCard.suit === 'clubs' ? '♣️' : '♠️'}`;
                 }
-                const data = (await database.ref(`users/${user.uid}`).once('value')).val();
-                userData = data;
-                updateUserUI();
-            } catch(e) {
-                console.error('Save user error:', e);
+                document.getElementById('currentSuit').innerHTML = `النوع: ${lastCard.suit}`;
             }
-        }
 
-        function updateUserUI() {
-            document.getElementById('userName').textContent = currentUser?.displayName || 'لاعب';
-            document.getElementById('userAvatar').innerHTML = currentUser?.photoURL ? 
-                `<img src="${currentUser.photoURL}" style="width:35px;height:35px;border-radius:50%">` : 
-                (currentUser?.displayName?.charAt(0) || '👤');
-            document.getElementById('userLevel').innerHTML = `⭐ المستوى ${userData.level || 1}`;
-            document.getElementById('userCoins').innerHTML = `💰 ${userData.coins || 0}`;
-        }
+            // تحديث عدد البطاقات
+            document.getElementById('deckCount').innerHTML = gameData.deck?.length || 0;
 
-        function showGameUI() {
-            document.getElementById('authBox').style.display = 'none';
-            document.getElementById('gameSection').style.display = 'block';
-            updateUserUI();
-        }
+            // تحديث الأوراق
+            const handDiv = document.getElementById('hand');
+            handDiv.innerHTML = '';
+            currentPlayer.hand.forEach((card, i) => {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'card';
+                if (selectedCardIndex === i) cardDiv.classList.add('selected');
+                if (card.rank === 'JOKER') {
+                    cardDiv.innerHTML = '<div class="card-rank">🃏</div><div class="card-suit">JOKER</div>';
+                } else {
+                    const suitSym = card.suit === 'hearts' ? '♥️' : card.suit === 'diamonds' ? '♦️' : card.suit === 'clubs' ? '♣️' : '♠️';
+                    cardDiv.innerHTML = `<div class="card-rank">${card.rank}</div><div class="card-suit">${suitSym}</div>`;
+                }
+                cardDiv.onclick = () => {
+                    selectedCardIndex = i;
+                    updateUI();
+                };
+                handDiv.appendChild(cardDiv);
+            });
 
-        function logout() {
-            if (isGuest) {
-                localStorage.removeItem('guestUser');
+            // تحديث الأزرار
+            const playBtn = document.getElementById('playBtn');
+            const passBtn = document.getElementById('passBtn');
+            if (isMyTurn && !gameData.gameEnded) {
+                playBtn.disabled = false;
+                const hasMatching = currentPlayer.hand.some(c => c.suit === gameData.currentSuit && c.rank !== 'JOKER');
+                passBtn.disabled = hasMatching;
             } else {
-                auth.signOut();
+                playBtn.disabled = true;
+                passBtn.disabled = true;
             }
-            currentUser = null;
-            isGuest = false;
-            document.getElementById('authBox').style.display = 'block';
-            document.getElementById('gameSection').style.display = 'none';
-            showToast('تم تسجيل الخروج');
         }
 
-        function createGame() {
-            if (!currentUser) {
-                showError('الرجاء تسجيل الدخول أولاً');
+        async function playCard() {
+            if (selectedCardIndex === null) {
+                addMessage('⚠️ اختر ورقة أولاً');
                 return;
             }
-            const gameId = Math.random().toString(36).substring(2, 8).toUpperCase();
-            window.location.href = `game.html?gameId=${gameId}`;
+
+            const currentPlayer = gameData.players[currentUser.uid];
+            const card = currentPlayer.hand[selectedCardIndex];
+            
+            // التحقق من صحة الحركة
+            if (card.rank !== 'JOKER' && card.suit !== gameData.currentSuit) {
+                const hasMatching = currentPlayer.hand.some(c => c.suit === gameData.currentSuit && c.rank !== 'JOKER');
+                if (hasMatching) {
+                    addMessage('❌ يجب رمي ورقة من نفس النوع!');
+                    return;
+                }
+            }
+
+            // إزالة البطاقة
+            const newHand = [...currentPlayer.hand];
+            newHand.splice(selectedCardIndex, 1);
+
+            // تحديث اللعبة
+            const updates = {
+                [`players/${currentUser.uid}/hand`]: newHand,
+                [`playedCards`]: [...gameData.playedCards, card],
+                [`currentSuit`]: card.rank === 'JOKER' ? gameData.currentSuit : card.suit
+            };
+
+            // تغيير الدور
+            const order = gameData.playersOrder;
+            const currentIdx = order.indexOf(gameData.currentTurn);
+            const nextIdx = (currentIdx + 1) % order.length;
+            updates.currentTurn = order[nextIdx];
+
+            // التحقق من الفوز
+            if (newHand.length === 0) {
+                updates.gameEnded = true;
+                updates.winner = currentUser.uid;
+                addMessage(`🎉 ${currentPlayer.name} فاز باللعبة! 🎉`);
+            }
+
+            await database.ref(`games/${gameId}`).update(updates);
+            selectedCardIndex = null;
         }
 
-        function joinGame() {
-            const gameCode = document.getElementById('gameCodeInput').value.trim().toUpperCase();
-            if (!gameCode) {
-                showError('الرجاء إدخال رمز اللعبة');
+        async function passTurn() {
+            const currentPlayer = gameData.players[currentUser.uid];
+            const hasMatching = currentPlayer.hand.some(c => c.suit === gameData.currentSuit && c.rank !== 'JOKER');
+            
+            if (hasMatching) {
+                addMessage('❌ لا يمكنك التمرير! لديك ورقة من نفس النوع');
                 return;
             }
-            window.location.href = `game.html?gameId=${gameCode}`;
+
+            const order = gameData.playersOrder;
+            const currentIdx = order.indexOf(gameData.currentTurn);
+            const nextIdx = (currentIdx + 1) % order.length;
+            
+            await database.ref(`games/${gameId}`).update({
+                currentTurn: order[nextIdx]
+            });
+            
+            addMessage(`⏭️ ${currentPlayer.name} قام بالتمرير`);
         }
 
-        // ============= ربط الأزرار =============
-        document.getElementById('googleBtn').onclick = loginWithGoogle;
-        document.getElementById('guestBtn').onclick = loginAsGuest;
-        document.getElementById('logoutBtn').onclick = logout;
-        document.getElementById('createGameBtn').onclick = createGame;
-        document.getElementById('joinGameBtn').onclick = joinGame;
+        function leaveGame() {
+            if (confirm('هل تريد مغادرة اللعبة؟')) {
+                window.location.href = 'index.html';
+            }
+        }
 
-        // ============= التحقق من حالة تسجيل الدخول =============
-        auth.onAuthStateChanged((user) => {
-            console.log('Auth state changed:', user);
+        // ربط الأزرار
+        document.getElementById('playBtn').onclick = playCard;
+        document.getElementById('passBtn').onclick = passTurn;
+
+        // الاستماع للعبة
+        auth.onAuthStateChanged(async (user) => {
+            const guest = localStorage.getItem('guestUser');
             if (user) {
                 currentUser = user;
-                isGuest = false;
-                saveUserToDB(user);
-                showGameUI();
+            } else if (guest) {
+                currentUser = JSON.parse(guest);
             } else {
-                const guest = localStorage.getItem('guestUser');
-                if (guest) {
-                    currentUser = JSON.parse(guest);
-                    isGuest = true;
-                    showGameUI();
-                }
+                window.location.href = 'index.html';
+                return;
             }
-        });
 
-        // التأكد من أن Firebase جاهز
-        console.log('Firebase ready:', typeof firebase !== 'undefined');
-        console.log('Auth ready:', typeof auth !== 'undefined');
+            // الاستماع لتحديثات اللعبة
+            database.ref(`games/${gameId}`).on('value', (snapshot) => {
+                gameData = snapshot.val();
+                if (gameData) {
+                    updateUI();
+                    if (gameData.gameEnded) {
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 3000);
+                    }
+                }
+            });
+        });
     </script>
 </body>
 </html>
