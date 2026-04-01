@@ -4,172 +4,430 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>JOKER | لعبة الجوكر</title>
-    <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .container {
+            max-width: 450px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .hero p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .card-box {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 32px;
+            padding: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 60px;
+            padding: 4px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            color: #94a3b8;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 60px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .btn-google {
+            width: 100%;
+            padding: 14px;
+            background: white;
+            border: none;
+            border-radius: 60px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .btn-google:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-guest {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #475569, #334155);
+            border: none;
+            border-radius: 60px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s;
+            margin-top: 16px;
+        }
+
+        .btn-guest:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #5a6e8c, #3b4a60);
+        }
+
+        .guest-info {
+            text-align: center;
+            margin-bottom: 16px;
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .guest-note {
+            font-size: 0.75rem;
+            margin-top: 5px;
+        }
+
+        .error-msg {
+            background: #ef4444;
+            color: white;
+            padding: 12px;
+            border-radius: 60px;
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+            font-size: 0.85rem;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #10b981;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 60px;
+            font-weight: 600;
+            transition: all 0.3s;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast.error {
+            background: #ef4444;
+        }
+
+        .user-bar {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 80px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .user-details {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+
+        .user-stats {
+            display: flex;
+            gap: 12px;
+            font-size: 0.7rem;
+            color: #94a3b8;
+        }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.2);
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border: none;
+            border-radius: 60px;
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            font-family: inherit;
+            margin-bottom: 12px;
+        }
+
+        .join-section {
+            display: flex;
+            gap: 10px;
+        }
+
+        .join-section input {
+            flex: 1;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 60px;
+            color: white;
+            text-align: center;
+            letter-spacing: 2px;
+            font-family: inherit;
+        }
+
+        .join-section input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .btn-secondary {
+            padding: 14px 24px;
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            border: none;
+            border-radius: 60px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .nav-link {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 20px;
+            border-radius: 40px;
+            color: #94a3b8;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .nav-link:hover {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: #3b82f6;
+        }
+    </style>
 </head>
 <body>
-    <div class="stars"></div>
-    <div class="twinkling"></div>
-    
     <div class="container">
-        <div class="hero-section">
-            <div class="card-float card-1">🃏</div>
-            <div class="card-float card-2">🃟</div>
-            <div class="card-float card-3">♠️</div>
-            <div class="card-float card-4">♥️</div>
-            
-            <h1 class="game-title">
-                <span class="title-joker">JOKER</span>
-                <span class="title-ar">الجوكر</span>
-            </h1>
-            <p class="tagline">آخر من تبقى معه أوراق يخسر!</p>
+        <div class="hero">
+            <h1>JOKER</h1>
+            <p>آخر من تبقى معه أوراق يخسر!</p>
         </div>
-        
-        <div class="auth-box" id="authBox">
+
+        <div id="authBox" class="card-box">
             <div class="tabs">
                 <button class="tab active" onclick="switchTab('login')">تسجيل الدخول</button>
                 <button class="tab" onclick="switchTab('guest')">لعب كضيف</button>
             </div>
-            
+
             <div id="loginTab" class="tab-content active">
-                <button id="googleLoginBtn" class="btn-google">
-                    <svg width="20" height="20" viewBox="0 0 24 24">
-                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                    </svg>
-                    تسجيل الدخول بحساب Google
+                <button id="googleBtn" class="btn-google">
+                    🚀 تسجيل الدخول بحساب Google
                 </button>
             </div>
-            
+
             <div id="guestTab" class="tab-content">
                 <div class="guest-info">
-                    <p>🎮 العب كضيف بدون حساب</p>
-                    <p class="guest-note">لن يتم حفظ تقدمك</p>
+                    🎮 العب كضيف بدون حساب
+                    <div class="guest-note">لن يتم حفظ تقدمك</div>
                 </div>
-                <button id="guestLoginBtn" class="btn-guest">
+                <button id="guestBtn" class="btn-guest">
                     👤 بدء اللعب كضيف
                 </button>
             </div>
         </div>
-        
-        <div id="gameControls" style="display: none;">
-            <div class="user-bar" id="userBar">
-                <div class="user-avatar" id="userAvatar"></div>
+
+        <div id="gameSection" style="display: none;">
+            <div id="userBar" class="user-bar">
+                <div class="user-avatar" id="userAvatar">👤</div>
                 <div class="user-details">
-                    <span class="user-name" id="userNameDisplay"></span>
+                    <div class="user-name" id="userName">---</div>
                     <div class="user-stats">
-                        <span class="user-level" id="userLevelDisplay">⭐ المستوى 1</span>
-                        <span class="user-coins" id="userCoinsDisplay">💰 0</span>
+                        <span id="userLevel">⭐ المستوى 1</span>
+                        <span id="userCoins">💰 0</span>
                     </div>
                 </div>
-                <button id="logoutBtn" class="logout-icon">🚪</button>
+                <button id="logoutBtn" class="logout-btn">🚪</button>
             </div>
+
+            <button id="createGameBtn" class="btn-primary">🎮 إنشاء لعبة جديدة</button>
             
-            <div class="game-actions">
-                <button id="createGameBtn" class="btn-primary">
-                    <span>🎮</span> إنشاء لعبة جديدة
-                </button>
-                <div class="join-section">
-                    <input type="text" id="gameCodeInput" placeholder="رمز اللعبة (6 أحرف)" maxlength="6">
-                    <button id="joinGameBtn" class="btn-secondary">🔍 انضم</button>
-                </div>
+            <div class="join-section">
+                <input type="text" id="gameCodeInput" placeholder="رمز اللعبة" maxlength="6">
+                <button id="joinGameBtn" class="btn-secondary">🔍 انضم</button>
             </div>
-            
+
             <div class="nav-links">
-                <button onclick="window.location.href='profile.html'" class="nav-link">👤 ملفي</button>
-                <button onclick="window.location.href='leaderboard.html'" class="nav-link">🏆 الترتيب</button>
-                <button onclick="window.location.href='shop.html'" class="nav-link">🛒 المتجر</button>
+                <button class="nav-link" onclick="window.location.href='profile.html'">👤 ملفي</button>
+                <button class="nav-link" onclick="window.location.href='leaderboard.html'">🏆 الترتيب</button>
+                <button class="nav-link" onclick="window.location.href='shop.html'">🛒 المتجر</button>
             </div>
         </div>
-        
-        <div class="footer">
-            <button id="themeToggle" class="theme-btn">🌙</button>
-        </div>
+
+        <div id="errorMsg" class="error-msg"></div>
     </div>
-    
+
     <div id="toast" class="toast"></div>
-    
+
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
+
     <script>
-        // ============= المتغيرات =============
+        // ============= متغيرات =============
         let currentUser = null;
         let isGuest = false;
-        
+        let userData = { level: 1, coins: 0 };
+
         // ============= دوال مساعدة =============
-        function showToast(message, isError = false) {
+        function showToast(msg, isError = false) {
             const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = 'toast show ' + (isError ? 'error' : '');
-            setTimeout(() => {
-                toast.className = 'toast';
-            }, 3000);
+            toast.textContent = msg;
+            toast.className = 'toast show';
+            if (isError) toast.classList.add('error');
+            setTimeout(() => toast.classList.remove('show'), 3000);
         }
-        
+
+        function showError(msg) {
+            const errDiv = document.getElementById('errorMsg');
+            errDiv.textContent = msg;
+            errDiv.style.display = 'block';
+            setTimeout(() => errDiv.style.display = 'none', 4000);
+        }
+
         function switchTab(tab) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             
             if (tab === 'login') {
-                document.querySelector('.tab').classList.add('active');
+                document.querySelectorAll('.tab')[0].classList.add('active');
                 document.getElementById('loginTab').classList.add('active');
             } else {
                 document.querySelectorAll('.tab')[1].classList.add('active');
                 document.getElementById('guestTab').classList.add('active');
             }
         }
-        
-        function showGameControls() {
-            document.getElementById('authBox').style.display = 'none';
-            document.getElementById('gameControls').style.display = 'block';
-        }
-        
-        function showAuthBox() {
-            document.getElementById('authBox').style.display = 'block';
-            document.getElementById('gameControls').style.display = 'none';
-        }
-        
-        function updateUserUI() {
-            if (currentUser) {
-                document.getElementById('userNameDisplay').textContent = currentUser.displayName || (isGuest ? currentUser.displayName : 'لاعب');
-                document.getElementById('userAvatar').innerHTML = currentUser.photoURL ? 
-                    `<img src="${currentUser.photoURL}" class="avatar-img">` : 
-                    `<div class="avatar-placeholder">${(currentUser.displayName || '👤').charAt(0)}</div>`;
-                
-                if (userData) {
-                    document.getElementById('userLevelDisplay').innerHTML = `⭐ المستوى ${userData.level || 1}`;
-                    document.getElementById('userCoinsDisplay').innerHTML = `💰 ${userData.coins || 0}`;
-                }
-            }
-        }
-        
+
         // ============= Firebase Auth =============
         function loginWithGoogle() {
+            console.log('Google login started...');
             const provider = new firebase.auth.GoogleAuthProvider();
             provider.setCustomParameters({ prompt: 'select_account' });
             
             auth.signInWithPopup(provider)
                 .then((result) => {
+                    console.log('Login success:', result.user);
                     currentUser = result.user;
                     isGuest = false;
                     localStorage.removeItem('guestUser');
-                    saveUserToDatabase(currentUser);
-                    showGameControls();
-                    updateUserUI();
+                    saveUserToDB(currentUser);
+                    showGameUI();
                     showToast(`مرحباً ${currentUser.displayName}! 🎉`);
                 })
                 .catch((error) => {
-                    console.error(error);
-                    showToast(error.message, true);
+                    console.error('Login error:', error);
+                    let msg = 'فشل تسجيل الدخول';
+                    if (error.code === 'auth/popup-blocked') msg = 'الرجاء السماح للنوافذ المنبثقة';
+                    else if (error.code === 'auth/network-request-failed') msg = 'فحص الاتصال بالإنترنت';
+                    showError(msg);
                 });
         }
-        
+
         function loginAsGuest() {
-            const guestId = 'guest_' + Date.now();
+            const guestId = 'guest_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
             const guestName = 'ضيف_' + Math.floor(Math.random() * 1000);
             
             currentUser = {
@@ -181,21 +439,54 @@
             isGuest = true;
             
             localStorage.setItem('guestUser', JSON.stringify(currentUser));
-            
-            // بيانات افتراضية للضيف
-            userData = {
-                level: 1,
-                coins: 0,
-                wins: 0,
-                losses: 0,
-                gamesPlayed: 0
-            };
-            
-            showGameControls();
-            updateUserUI();
+            userData = { level: 1, coins: 0, wins: 0, losses: 0 };
+            showGameUI();
             showToast(`مرحباً ${guestName}! 🎮`);
         }
-        
+
+        async function saveUserToDB(user) {
+            if (user.isGuest) return;
+            
+            try {
+                const snapshot = await database.ref(`users/${user.uid}`).once('value');
+                if (!snapshot.exists()) {
+                    await database.ref(`users/${user.uid}`).set({
+                        uid: user.uid,
+                        name: user.displayName,
+                        email: user.email || '',
+                        photoURL: user.photoURL || '',
+                        createdAt: Date.now(),
+                        xp: 0,
+                        level: 1,
+                        coins: 100,
+                        wins: 0,
+                        losses: 0,
+                        gamesPlayed: 0
+                    });
+                }
+                const data = (await database.ref(`users/${user.uid}`).once('value')).val();
+                userData = data;
+                updateUserUI();
+            } catch(e) {
+                console.error('Save user error:', e);
+            }
+        }
+
+        function updateUserUI() {
+            document.getElementById('userName').textContent = currentUser?.displayName || 'لاعب';
+            document.getElementById('userAvatar').innerHTML = currentUser?.photoURL ? 
+                `<img src="${currentUser.photoURL}" style="width:35px;height:35px;border-radius:50%">` : 
+                (currentUser?.displayName?.charAt(0) || '👤');
+            document.getElementById('userLevel').innerHTML = `⭐ المستوى ${userData.level || 1}`;
+            document.getElementById('userCoins').innerHTML = `💰 ${userData.coins || 0}`;
+        }
+
+        function showGameUI() {
+            document.getElementById('authBox').style.display = 'none';
+            document.getElementById('gameSection').style.display = 'block';
+            updateUserUI();
+        }
+
         function logout() {
             if (isGuest) {
                 localStorage.removeItem('guestUser');
@@ -204,99 +495,57 @@
             }
             currentUser = null;
             isGuest = false;
-            showAuthBox();
+            document.getElementById('authBox').style.display = 'block';
+            document.getElementById('gameSection').style.display = 'none';
             showToast('تم تسجيل الخروج');
         }
-        
-        async function saveUserToDatabase(user) {
-            if (user.isGuest) return;
-            
-            const userRef = database.ref(`users/${user.uid}`);
-            const snapshot = await userRef.once('value');
-            
-            if (!snapshot.exists()) {
-                await userRef.set({
-                    uid: user.uid,
-                    name: user.displayName,
-                    email: user.email || '',
-                    photoURL: user.photoURL || '',
-                    createdAt: Date.now(),
-                    xp: 0,
-                    level: 1,
-                    coins: 100,
-                    wins: 0,
-                    losses: 0,
-                    gamesPlayed: 0
-                });
-            }
-            
-            const data = (await userRef.once('value')).val();
-            window.userData = data;
-            updateUserUI();
-        }
-        
+
         function createGame() {
             if (!currentUser) {
-                showToast('الرجاء تسجيل الدخول أولاً', true);
+                showError('الرجاء تسجيل الدخول أولاً');
                 return;
             }
             const gameId = Math.random().toString(36).substring(2, 8).toUpperCase();
             window.location.href = `game.html?gameId=${gameId}`;
         }
-        
+
         function joinGame() {
             const gameCode = document.getElementById('gameCodeInput').value.trim().toUpperCase();
             if (!gameCode) {
-                showToast('الرجاء إدخال رمز اللعبة', true);
+                showError('الرجاء إدخال رمز اللعبة');
                 return;
             }
             window.location.href = `game.html?gameId=${gameCode}`;
         }
-        
-        function toggleTheme() {
-            const isDark = document.body.classList.toggle('light-theme');
-            const btn = document.getElementById('themeToggle');
-            btn.textContent = isDark ? '🌙' : '☀️';
-            localStorage.setItem('theme', isDark ? 'light' : 'dark');
-        }
-        
-        // ============= تحميل البيانات =============
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                currentUser = user;
-                isGuest = false;
-                saveUserToDatabase(user);
-                showGameControls();
-                updateUserUI();
-            } else {
-                const guestUser = localStorage.getItem('guestUser');
-                if (guestUser) {
-                    currentUser = JSON.parse(guestUser);
-                    isGuest = true;
-                    showGameControls();
-                    updateUserUI();
-                } else {
-                    showAuthBox();
-                }
-            }
-        });
-        
+
         // ============= ربط الأزرار =============
-        document.getElementById('googleLoginBtn').onclick = loginWithGoogle;
-        document.getElementById('guestLoginBtn').onclick = loginAsGuest;
+        document.getElementById('googleBtn').onclick = loginWithGoogle;
+        document.getElementById('guestBtn').onclick = loginAsGuest;
         document.getElementById('logoutBtn').onclick = logout;
         document.getElementById('createGameBtn').onclick = createGame;
         document.getElementById('joinGameBtn').onclick = joinGame;
-        document.getElementById('themeToggle').onclick = toggleTheme;
-        
-        // تحميل الثيم المحفوظ
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'light') {
-            document.body.classList.add('light-theme');
-            document.getElementById('themeToggle').textContent = '🌙';
-        }
-        
-        window.userData = { level: 1, coins: 0 };
+
+        // ============= التحقق من حالة تسجيل الدخول =============
+        auth.onAuthStateChanged((user) => {
+            console.log('Auth state changed:', user);
+            if (user) {
+                currentUser = user;
+                isGuest = false;
+                saveUserToDB(user);
+                showGameUI();
+            } else {
+                const guest = localStorage.getItem('guestUser');
+                if (guest) {
+                    currentUser = JSON.parse(guest);
+                    isGuest = true;
+                    showGameUI();
+                }
+            }
+        });
+
+        // التأكد من أن Firebase جاهز
+        console.log('Firebase ready:', typeof firebase !== 'undefined');
+        console.log('Auth ready:', typeof auth !== 'undefined');
     </script>
 </body>
 </html>
